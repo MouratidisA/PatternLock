@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "712577108081",
+    "firebase_url": "https://patternlock-37072.firebaseio.com",
+    "project_id": "patternlock-37072",
+    "storage_bucket": "patternlock-37072.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:712577108081:android:c94cc1f54db48e60",
+        "android_client_info": {
+          "package_name": "icsd.patternlock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "712577108081-96564f0gk73jcu4jinqeesr771iaulv7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "icsd.patternlock",
+            "certificate_hash": "031089a3cd0363e96c80dc4d59a1555d21dbab61"
+          }
+        },
+        {
+          "client_id": "712577108081-7hr1qbncf77usjq7n9smj1kj0hp8shf3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4z-ZLqUbekkdf6uU7VWETinlpsI2-Jbk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "712577108081-7hr1qbncf77usjq7n9smj1kj0hp8shf3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
