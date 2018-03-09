@@ -28,9 +28,10 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
-    implementation  'com.opencsv:opencsv:4.1'
+    implementation 'com.opencsv:opencsv:4.1'
     implementation 'io.paperdb:paperdb:2.0'
-    implementation 'com.andrognito.patternlockview:patternlockview:1.0.0'
+    //implementation 'com.andrognito.patternlockview:patternlockview:1.0.0'
+    //implementation 'com.reginald:patternlock:1.1.0'
 }
 
 
