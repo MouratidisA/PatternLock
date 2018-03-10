@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -25,21 +26,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float startX, startY;
     private float endX, endY;
     private boolean isDown = false;
-    double accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
-    double gyro_x, gyro_y, gyro_z;
-    double laccel_x, laccel_y, laccel_z;
+    public  static double  accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
+    public static double gyro_x, gyro_y, gyro_z;
+    public static  double laccel_x, laccel_y, laccel_z;
     private float[] gravity = new float[3];
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGyroscope;
 
     TextView gyroTextView, accTextView, linaccTextView;
 
-
     private static final String TAG = "DemoActivity";
-
     private PatternLockView mCurLockView;
-
     private PatternLockView mCircleLockView;
+
+    public  ArrayList<Point> PointList = new ArrayList<>();
+    public  ArrayList<String> NodeList = new ArrayList<>();
+
 
 
     @Override
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             accel_x = event.values[0];
             accel_y = event.values[1];
             accel_z = event.values[2];
-            accTextView.setText("X=" + accel_x + " Y=" + accel_y + " Z=" + accel_z);
+
 
             //https://stackoverflow.com/questions/20935587/how-to-properly-calculate-linear-acceleration-using-accelerometer-in-android
             // alpha is calculated as t / (t + dT)
@@ -112,13 +114,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             laccel_x = event.values[0] - gravity[0];
             laccel_y = event.values[1] - gravity[1];
             laccel_z = event.values[2] - gravity[2];
-            linaccTextView.setText("X=" + laccel_x + " Y=" + laccel_y + " Z=" + laccel_z);
+
         }
         if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             gyro_x = event.values[0];
             gyro_y = event.values[1];
             gyro_z = event.values[2];
-            gyroTextView.setText("X=" + gyro_x + " Y=" + gyro_y + " Z=" + gyro_z);
+
         }
 
     }
@@ -157,7 +159,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-
+    public  static SensorDataModelClass GetSensors(){
+        SensorDataModelClass sensorDataModelClass= new SensorDataModelClass(accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,laccel_x,laccel_y,laccel_z);
+        return  sensorDataModelClass;
+    }
 }
 
 //https://www.codeproject.com/Questions/491823/Read-fWriteplusCSVplusinplusplusAndroid

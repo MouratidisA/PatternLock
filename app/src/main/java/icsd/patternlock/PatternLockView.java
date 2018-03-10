@@ -1,5 +1,6 @@
 package icsd.patternlock;
 
+import icsd.patternlock.MainActivity.*;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -9,7 +10,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.icu.text.SimpleDateFormat;
 import android.os.Build;
+import android.os.Environment;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -19,6 +25,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 
+import com.opencsv.CSVWriter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,6 +131,20 @@ public class PatternLockView extends ViewGroup {
             setTouchEnabled(true);
         }
     };
+
+    double accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
+    double gyro_x, gyro_y, gyro_z;
+    double laccel_x, laccel_y, laccel_z;
+    private float[] gravity = new float[3];
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer, mGyroscope;
+
+    /**
+     * OUR LISTS HERE!!
+     **/
+    public ArrayList<Point> PointList = new ArrayList<>();
+    public ArrayList<Integer> NodeList = new ArrayList<>();
+    public ArrayList<RawPatternModelClass> RawPatternList = new ArrayList<>();
 
     public PatternLockView(Context context) {
         this(context, null);
@@ -429,7 +454,9 @@ public class PatternLockView extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.d("aa",String.valueOf(event.getRawX()));
+        Log.d("Touch Point (x,y)", String.valueOf(event.getRawX()) + "---" + String.valueOf(event.getRawY()));
+        PointList.add(new Point(event.getRawX(), event.getRawY(), event.getPressure()));
+
         if (!mIsTouchEnabled || !isEnabled()) {
             return true;
         }
@@ -447,6 +474,11 @@ public class PatternLockView extends ViewGroup {
 
                 if (currentNode == null) {
                     if (nodeAt != null) {
+                        Log.d("EEEEEEEEEEEEEE", "nodeAt-->" + nodeAt.getNodeId());
+                        NodeList.add(nodeAt.getNodeId() + 1);
+
+                        SensorDataModelClass sensorDataModelClass= MainActivity.GetSensors();
+
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
                         addNodeToList(currentNode);
@@ -454,6 +486,9 @@ public class PatternLockView extends ViewGroup {
                     }
                 } else {
                     if (nodeAt != null && !nodeAt.isHighLighted()) {
+                        Log.d("oooooooooooooo", "nodeAt-->" + nodeAt.getNodeId());
+                        NodeList.add(nodeAt.getNodeId() + 1);
+
                         if (mIsAutoLink) {
                             autoLinkNode(currentNode, nodeAt);
                         }
@@ -461,8 +496,11 @@ public class PatternLockView extends ViewGroup {
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
                         addNodeToList(currentNode);
                     }
+                    /**Addind Raw Data  Here !!**/
+                    RawPatternList.add(new RawPatternModelClass(NodeList.get(NodeList.size() - 1), SystemClock.elapsedRealtimeNanos(), event.getRawX(), event.getRawY(), event.getPressure()));
                     invalidate();
                 }
+
                 break;
             case MotionEvent.ACTION_UP:
                 if (mNodeList.size() > 0) {
@@ -479,6 +517,21 @@ public class PatternLockView extends ViewGroup {
                     currentNode = null;
                     invalidate();
                     postDelayed(mFinishAction, mFinishTimeout);
+
+                    /****/
+                    Log.d("oooooooooooooo", "nodeAt-->" + RawPatternList.toString());
+                    /** Write RawPattern to a file **/
+                    /**Get users name as filename **/
+                    String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+                    String fileName = "AnalysisData.csv";
+                    String filePath = baseDir + File.separator + fileName;
+
+                    /** Filling CSV file with data**/
+                    for (int i = 0; i < RawPatternList.size(); i++) {
+                        writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
+                    }
+                    RawPatternList.clear();
+
 
                 }
                 break;
@@ -643,6 +696,7 @@ public class PatternLockView extends ViewGroup {
      */
     public interface OnNodeTouchListener {
         void onNodeTouched(int NodeId);
+
     }
 
     private class NodeView extends View {
@@ -766,4 +820,22 @@ public class PatternLockView extends ViewGroup {
         }
     }
 
+    public void writeCSV( String filePath,String [] data) {
+        //https://stackoverflow.com/questions/17645092/export-my-data-on-csv-file-from-app-android
+        /* String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+        String fileName = "AnalysisData.csv";
+        String filePath = baseDir + File.separator + fileName;*/
+        CSVWriter writer = null;
+        try {
+            writer = new CSVWriter(new FileWriter(filePath, true));
+            writer.writeNext(data);
+            writer.flush();
+            writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+    }
 }
