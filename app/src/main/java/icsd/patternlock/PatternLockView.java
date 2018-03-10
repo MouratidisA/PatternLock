@@ -27,11 +27,16 @@ import android.view.animation.AnimationUtils;
 
 import com.opencsv.CSVWriter;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * PatternLockView support two layout mode:
@@ -132,19 +137,18 @@ public class PatternLockView extends ViewGroup {
         }
     };
 
-    double accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
-    double gyro_x, gyro_y, gyro_z;
-    double laccel_x, laccel_y, laccel_z;
-    private float[] gravity = new float[3];
-    private SensorManager mSensorManager;
-    private Sensor mAccelerometer, mGyroscope;
 
     /**
-     * OUR LISTS HERE!!
+     * OUR CODE HERE!!
      **/
     public ArrayList<Point> PointList = new ArrayList<>();
     public ArrayList<Integer> NodeList = new ArrayList<>();
     public ArrayList<RawPatternModelClass> RawPatternList = new ArrayList<>();
+    public ArrayList<SensorDataModelClass> SensorPatternList = new ArrayList<>();
+    public static int Attempt;
+    public long TimeStart,TimeEnd,TimeToComplete;
+
+
 
     public PatternLockView(Context context) {
         this(context, null);
@@ -470,6 +474,9 @@ public class PatternLockView extends ViewGroup {
             case MotionEvent.ACTION_MOVE:
                 mPositionX = event.getX();
                 mPositionY = event.getY();
+                /**Start time of Pattern**/
+                TimeStart=SystemClock.elapsedRealtimeNanos();
+
                 NodeView nodeAt = getNodeAt(mPositionX, mPositionY);
 
                 if (currentNode == null) {
@@ -477,7 +484,6 @@ public class PatternLockView extends ViewGroup {
                         Log.d("EEEEEEEEEEEEEE", "nodeAt-->" + nodeAt.getNodeId());
                         NodeList.add(nodeAt.getNodeId() + 1);
 
-                        SensorDataModelClass sensorDataModelClass= MainActivity.GetSensors();
 
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
@@ -497,6 +503,7 @@ public class PatternLockView extends ViewGroup {
                         addNodeToList(currentNode);
                     }
                     /**Addind Raw Data  Here !!**/
+                    SensorPatternList.add(MainActivity.GetSensors());
                     RawPatternList.add(new RawPatternModelClass(NodeList.get(NodeList.size() - 1), SystemClock.elapsedRealtimeNanos(), event.getRawX(), event.getRawY(), event.getPressure()));
                     invalidate();
                 }
@@ -519,6 +526,20 @@ public class PatternLockView extends ViewGroup {
                     postDelayed(mFinishAction, mFinishTimeout);
 
                     /****/
+                    /**End time of Pattern**/
+                    TimeEnd=SystemClock.elapsedRealtimeNanos();
+                    TimeToComplete = TimeEnd - TimeStart;
+                     // NodeSequence from NodeList without duplicates for PatternMetadataModeClass
+                    Set<Integer> hs = new LinkedHashSet<>(NodeList);
+                    hs.addAll(NodeList);
+                    ArrayList<Integer> tempList = new ArrayList<>();
+                    tempList.addAll(hs);
+                    int[] NodeSequence = new int[hs.size()];
+                    for(int i=0;i<hs.size();i++){
+                        NodeSequence[i] = tempList.get(i);
+                        Log.d("AIAIAIAIAIIAIA", String.valueOf(NodeSequence[i]));
+                    }
+                    
                     Log.d("oooooooooooooo", "nodeAt-->" + RawPatternList.toString());
                     /** Write RawPattern to a file **/
                     /**Get users name as filename **/
@@ -526,11 +547,23 @@ public class PatternLockView extends ViewGroup {
                     String fileName = "AnalysisData.csv";
                     String filePath = baseDir + File.separator + fileName;
 
-                    /** Filling CSV file with data**/
+                    /** Writing Raw Pattern data to CSV file**/
                     for (int i = 0; i < RawPatternList.size(); i++) {
                         writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
                     }
+                    /**Writing Sensor data to CSV file**/
+                    String SensorfileName = "SensorAnalysisData.csv";
+                    String SensorfilePath = baseDir + File.separator + SensorfileName;
+                    for (int i = 0; i < SensorPatternList.size(); i++) {
+                        writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
+                    }
+                    /**CLEANING the list for next Pattern**/
+                    Attempt++;
+                    /**Molis teleiwsoun ta 26 attempts tha prepei na midenizete to Attempt kai na adeiazoun ta stoixeia tou xrisi**/
+                    MainActivity.setAttempt(Attempt);
+                    SensorPatternList.clear();
                     RawPatternList.clear();
+                    NodeList.clear();
 
 
                 }
@@ -820,7 +853,7 @@ public class PatternLockView extends ViewGroup {
         }
     }
 
-    public void writeCSV( String filePath,String [] data) {
+    public void writeCSV(String filePath, String[] data) {
         //https://stackoverflow.com/questions/17645092/export-my-data-on-csv-file-from-app-android
         /* String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
         String fileName = "AnalysisData.csv";

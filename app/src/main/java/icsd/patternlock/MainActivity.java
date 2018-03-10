@@ -10,8 +10,11 @@ import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
-
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Switch;
 import com.opencsv.CSVWriter;
 
 import java.io.FileWriter;
@@ -21,44 +24,79 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    public ArrayList<RawPatternModelClass> rawPatternList = new ArrayList<RawPatternModelClass>();
-    private View touch;
-    private float startX, startY;
-    private float endX, endY;
-    private boolean isDown = false;
-    public  static double  accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
+
+    public static double accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
     public static double gyro_x, gyro_y, gyro_z;
-    public static  double laccel_x, laccel_y, laccel_z;
+    public static double laccel_x, laccel_y, laccel_z;
+    public static String username;
+    public  static int fingernum, handnum;
     private float[] gravity = new float[3];
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGyroscope;
 
-    TextView gyroTextView, accTextView, linaccTextView;
 
+    public  EditText UserName, Info;
+    public static EditText  Attempt;
     private static final String TAG = "DemoActivity";
     private PatternLockView mCurLockView;
     private PatternLockView mCircleLockView;
 
-    public  ArrayList<Point> PointList = new ArrayList<>();
-    public  ArrayList<String> NodeList = new ArrayList<>();
+    private Switch hand;
+    private RadioGroup radioGroup;
+    private RadioButton radioButton;
+    private Button submit;
 
-
+    public static void setAttempt(int attempts) {
+        Attempt.setText(String.valueOf(attempts));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        UserName =(EditText) findViewById(R.id.UserName);
+
+        Attempt = findViewById(R.id.Attempt);
+        hand = findViewById(R.id.hand);
+        radioGroup = (RadioGroup) findViewById(R.id.finger);
+
+
+        submit=findViewById(R.id.submit);
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String selection=null;
+                if (!hand.isChecked()) {
+                    handnum = 1;
+                    Log.d("handnum",Integer.toString(handnum));
+
+                } else {
+                    handnum = 2;
+                    Log.d("handnum",Integer.toString(handnum));
+                }
+              username= UserName.getText().toString();
+                if(radioGroup.getCheckedRadioButtonId()!=-1){
+                    int id= radioGroup.getCheckedRadioButtonId();
+                    View radioButton = radioGroup.findViewById(id);
+                    int radioId = radioGroup.indexOfChild(radioButton);
+                    RadioButton btn = (RadioButton) radioGroup.getChildAt(radioId);
+                    selection = (String) btn.getText();
+                    fingernum=Integer.getInteger(selection);
+                }
+                int checkedRadioButton=radioGroup.getCheckedRadioButtonId();
+                radioButton = findViewById(checkedRadioButton);
+
+                Log.d("fingernum"," Finger= "+selection+" Username = : "+username+" HandNumber = : "+handnum);
+            }
+
+        });
 
         //Initialize sensors
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-
-        gyroTextView = findViewById(R.id.gyro);
-        accTextView = findViewById(R.id.acc);
-        linaccTextView = findViewById(R.id.lin_acc);
 
 
         mCircleLockView = (PatternLockView) findViewById(R.id.lock_view_circle);
@@ -159,10 +197,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    public  static SensorDataModelClass GetSensors(){
-        SensorDataModelClass sensorDataModelClass= new SensorDataModelClass(accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,laccel_x,laccel_y,laccel_z);
-        return  sensorDataModelClass;
+    public static SensorDataModelClass GetSensors() {
+        SensorDataModelClass sensorDataModelClass = new SensorDataModelClass(accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, laccel_x, laccel_y, laccel_z);
+        return sensorDataModelClass;
     }
+
+    public static String GetUsername (){
+        return username;
+    }
+    public static int GetHandNumber (){
+        return handnum;
+    }
+    public static int GetFingerNumber (){
+        return fingernum;
+    }
+
 }
 
 //https://www.codeproject.com/Questions/491823/Read-fWriteplusCSVplusinplusplusAndroid
