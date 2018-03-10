@@ -67,7 +67,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
-        android:text="Select hand Off=1(Right) On=2(Left)" />
+        android:showText="true"
+        android:text="Select hand Off=1(Right) On=2(Left)"
+        android:textOff="Right"
+        android:textOn="Left" />
 
     <RadioGroup
         android:id="@+id/finger"

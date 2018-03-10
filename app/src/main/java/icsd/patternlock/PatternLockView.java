@@ -539,7 +539,8 @@ public class PatternLockView extends ViewGroup {
                         NodeSequence[i] = tempList.get(i);
                         Log.d("AIAIAIAIAIIAIA", String.valueOf(NodeSequence[i]));
                     }
-                    
+                    int SequenceLength = NodeSequence.length;
+
                     Log.d("oooooooooooooo", "nodeAt-->" + RawPatternList.toString());
                     /** Write RawPattern to a file **/
                     /**Get users name as filename **/
