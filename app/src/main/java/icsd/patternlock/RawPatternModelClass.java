@@ -46,4 +46,12 @@ public class RawPatternModelClass {
     public long getY() {
         return y;
     }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public float getPressure() {
+        return pressure;
+    }
 }

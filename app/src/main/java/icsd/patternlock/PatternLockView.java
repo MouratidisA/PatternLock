@@ -145,6 +145,7 @@ public class PatternLockView extends ViewGroup {
     public ArrayList<Integer> NodeList = new ArrayList<>();
     public ArrayList<RawPatternModelClass> RawPatternList = new ArrayList<>();
     public ArrayList<SensorDataModelClass> SensorPatternList = new ArrayList<>();
+    public ArrayList<PairMetadataModelClass> PairMetaDataList=new ArrayList<>();
     public static int Attempt;
     public long TimeStart, TimeEnd, TimeToComplete;
 
@@ -568,10 +569,14 @@ public class PatternLockView extends ViewGroup {
                     for (int i = 0; i < RawPatternList.size(); i++) {
                         first_record_of_a_node = RawPatternList.get(i); // The first record of a Node
                         //searching till the last record of the node
+                        int PressureCount = 0; // count the number of recorder points' pressure
+                        float PressureSum = 0; // sum of all points' pressure on the same Node
                         int j = i;
                         while (RawPatternList.get(j).getNumber_of_activated_point() == first_record_of_a_node.getNumber_of_activated_point()) {
                             // if next RawPatternModelClass Number of Node differs from the current Number of node then pass current to temp2 as the last record of that Node
                             i = j;
+                            PressureCount++;
+                            PressureSum += RawPatternList.get(j).getPressure();
                             last_record_of_a_node = RawPatternList.get(j);
                             int tp = j;
                             tp++;
@@ -591,12 +596,23 @@ public class PatternLockView extends ViewGroup {
                                         first_record_of_a_node.getX(),
                                         first_record_of_a_node.getY(),
                                         last_record_of_a_node.getX(),
-                                        last_record_of_a_node.getY()));
+                                        last_record_of_a_node.getY(),
+                                        last_record_of_a_node.getTimestamp(),
+                                        first_record_of_a_node.getTimestamp(),
+                                        PressureSum, PressureCount));
 
 
                     }
-                    for(int i=0;i<PairNodeModelClassList.size();i++){
-                    Log.d("Last Record of Node", PairNodeModelClassList.get(i).toString());
+                    /** Here we will take the list with PairNodeModeClass items to create the PairMetadata file **/
+                    CreatePairMetadataCsv(PairNodeModelClassList);
+                    /**Writing PairMetadata to CSV file**//*
+                    String PairMetadatafileName = "PairMetadatafile.csv";
+                    String PairMetadatafilePath = baseDir + File.separator + PairMetadatafileName;
+                    for (int i = 0; i < PairMetaDataList.size(); i++) {
+                        writeCSV(PairMetadatafilePath, PairMetaDataList.get(i).getPairMetadataModelClassToStringArray()) ;
+                    }*/
+                    for (int i = 0; i < PairNodeModelClassList.size(); i++) {
+                        Log.d("Last Record of Node", PairNodeModelClassList.get(i).toString());
                     }
                     /**Molis teleiwsoun ta 26 attempts tha prepei na midenizete to Attempt kai na adeiazoun ta stoixeia tou xrisi**/
                     MainActivity.setAttempt(Attempt);
@@ -609,6 +625,56 @@ public class PatternLockView extends ViewGroup {
                 break;
         }
         return true;
+    }
+
+    public void CreatePairMetadataCsv(ArrayList<PairNodeModelClass> PairNodeModelClassList) {
+        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+        String PairMetadatafileName = "PairMetadatafile.csv";
+        String PairMetadatafilePath = baseDir + File.separator + PairMetadatafileName;
+
+        PairMetadataModelClass pairMetadataModelClass = new PairMetadataModelClass();
+        //UserName
+        pairMetadataModelClass.setUsername(MainActivity.GetUsername());
+        // Attemp Number
+        pairMetadataModelClass.setAttempt_number(Attempt);
+        //Display Resolution
+        //TODO get the Display Resolution of the phone
+        pairMetadataModelClass.setScreen_resolution("");
+        //Getting information about Pairs in list NodeA to NodeB
+        for (int i = 0; i < PairNodeModelClassList.size() - 1; i++) {
+            //Pattern Number of NodeA and NodeB
+            pairMetadataModelClass.setPattern_number_A(PairNodeModelClassList.get(i).getPattern_number_Node());
+            pairMetadataModelClass.setPattern_number_B(PairNodeModelClassList.get(i + 1).getPattern_number_Node());
+            //Central Point for Node A
+            pairMetadataModelClass.setXcoord_of_central_Point_of_A(PairNodeModelClassList.get(i).getXcoord_of_central_Point_of_Node());
+            pairMetadataModelClass.setYcoord_of_central_Point_of_A(PairNodeModelClassList.get(i).getYcoord_of_central_Point_of_Node());
+            //Central Point for Node B
+            pairMetadataModelClass.setXcoord_of_central_Point_of_B(PairNodeModelClassList.get(i + 1).getXcoord_of_central_Point_of_Node());
+            pairMetadataModelClass.setYcoord_of_central_Point_of_B(PairNodeModelClassList.get(i + 1).getYcoord_of_central_Point_of_Node());
+            //First point of Node A
+            pairMetadataModelClass.setFirst_Xcoord_of_A(PairNodeModelClassList.get(i).getFirst_Xcoord_of_Node());
+            pairMetadataModelClass.setFirst_Ycoord_of_A(PairNodeModelClassList.get(i).getFirst_Ycoord_of_Node());
+            //Last point of Node B
+            pairMetadataModelClass.setLast_Xcoord_of_B(PairNodeModelClassList.get(i + 1).getLast_Xcoord_of_Node());
+            pairMetadataModelClass.setLast_Ycoord_of_B(PairNodeModelClassList.get(i + 1).getLast_Ycoord_of_Node());
+
+            double x2 = PairNodeModelClassList.get(i + 1).getLast_Xcoord_of_Node();
+            double x1 = PairNodeModelClassList.get(i).getFirst_Xcoord_of_Node();
+            double y2 = PairNodeModelClassList.get(i + 1).getLast_Ycoord_of_Node();
+            double y1 = PairNodeModelClassList.get(i).getFirst_Ycoord_of_Node();
+            double distance = Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2);
+            pairMetadataModelClass.setDistance_AB(Math.sqrt(distance));
+
+            long intertime = PairNodeModelClassList.get(i + 1).getLastTimestamp() - PairNodeModelClassList.get(i).getFirstTimestamp();
+            pairMetadataModelClass.setIntertime_AB(intertime);
+
+            pairMetadataModelClass.setAvg_speeadAB((long) distance / intertime);
+
+            pairMetadataModelClass.setAvg_pressure((long) (PairNodeModelClassList.get(i).getNodePressure() + PairNodeModelClassList.get(i + 1).getNodePressure()) / (PairNodeModelClassList.get(i).getTouchPointsCount() + PairNodeModelClassList.get(i + 1).getTouchPointsCount()));
+            /**Writing PairMetadata row to CSV file**/
+                writeCSV(PairMetadatafilePath,  pairMetadataModelClass.getPairMetadataModelClassToStringArray()) ;
+        }
+
     }
 
     private void setupNodes(int size) {
