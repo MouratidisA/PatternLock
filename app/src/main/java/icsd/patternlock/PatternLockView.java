@@ -146,8 +146,7 @@ public class PatternLockView extends ViewGroup {
     public ArrayList<RawPatternModelClass> RawPatternList = new ArrayList<>();
     public ArrayList<SensorDataModelClass> SensorPatternList = new ArrayList<>();
     public static int Attempt;
-    public long TimeStart,TimeEnd,TimeToComplete;
-
+    public long TimeStart, TimeEnd, TimeToComplete;
 
 
     public PatternLockView(Context context) {
@@ -475,7 +474,7 @@ public class PatternLockView extends ViewGroup {
                 mPositionX = event.getX();
                 mPositionY = event.getY();
                 /**Start time of Pattern**/
-                TimeStart=SystemClock.elapsedRealtimeNanos();
+                TimeStart = SystemClock.elapsedRealtimeNanos();
 
                 NodeView nodeAt = getNodeAt(mPositionX, mPositionY);
 
@@ -504,7 +503,7 @@ public class PatternLockView extends ViewGroup {
                     }
                     /**Addind Raw Data  Here !!**/
                     SensorPatternList.add(MainActivity.GetSensors());
-                    RawPatternList.add(new RawPatternModelClass(NodeList.get(NodeList.size() - 1), SystemClock.elapsedRealtimeNanos(), event.getRawX(), event.getRawY(), event.getPressure()));
+                    RawPatternList.add(new RawPatternModelClass(NodeList.get(NodeList.size() - 1), SystemClock.elapsedRealtimeNanos(), (long) event.getRawX(), (long) event.getRawY(), event.getPressure()));
                     invalidate();
                 }
 
@@ -527,15 +526,15 @@ public class PatternLockView extends ViewGroup {
 
                     /****/
                     /**End time of Pattern**/
-                    TimeEnd=SystemClock.elapsedRealtimeNanos();
+                    TimeEnd = SystemClock.elapsedRealtimeNanos();
                     TimeToComplete = TimeEnd - TimeStart;
-                     // NodeSequence from NodeList without duplicates for PatternMetadataModeClass
+                    // NodeSequence from NodeList without duplicates for PatternMetadataModeClass
                     Set<Integer> hs = new LinkedHashSet<>(NodeList);
                     hs.addAll(NodeList);
                     ArrayList<Integer> tempList = new ArrayList<>();
                     tempList.addAll(hs);
                     int[] NodeSequence = new int[hs.size()];
-                    for(int i=0;i<hs.size();i++){
+                    for (int i = 0; i < hs.size(); i++) {
                         NodeSequence[i] = tempList.get(i);
                         Log.d("AIAIAIAIAIIAIA", String.valueOf(NodeSequence[i]));
                     }
@@ -560,6 +559,45 @@ public class PatternLockView extends ViewGroup {
                     }
                     /**CLEANING the list for next Pattern**/
                     Attempt++;
+                    /**TODO Make attempt number change every pattern that has at least 4 nodes!!
+                     /* PairNode Data for PairNodeModelClass!*/
+                    ArrayList<PairNodeModelClass> PairNodeModelClassList = new ArrayList<>();
+                    RawPatternModelClass first_record_of_a_node = null, last_record_of_a_node = null;
+
+
+                    for (int i = 0; i < RawPatternList.size(); i++) {
+                        first_record_of_a_node = RawPatternList.get(i); // The first record of a Node
+                        //searching till the last record of the node
+                        int j = i;
+                        while (RawPatternList.get(j).getNumber_of_activated_point() == first_record_of_a_node.getNumber_of_activated_point()) {
+                            // if next RawPatternModelClass Number of Node differs from the current Number of node then pass current to temp2 as the last record of that Node
+                            i = j;
+                            last_record_of_a_node = RawPatternList.get(j);
+                            int tp = j;
+                            tp++;
+                            if (tp == RawPatternList.size()) {
+                                //i = j;
+                                break;
+                            } else {
+                                j++;
+                            }
+                        }
+                        /**Adding The first and the last record of the Node to a PairNodeModelClass**/
+                        PairNodeModelClassList.add(
+                                new PairNodeModelClass(
+                                        first_record_of_a_node.getNumber_of_activated_point(),
+                                        GetCenterNodeX(first_record_of_a_node.getNumber_of_activated_point()),
+                                        GetCenterNodeY(first_record_of_a_node.getNumber_of_activated_point()),
+                                        first_record_of_a_node.getX(),
+                                        first_record_of_a_node.getY(),
+                                        last_record_of_a_node.getX(),
+                                        last_record_of_a_node.getY()));
+
+
+                    }
+                    for(int i=0;i<PairNodeModelClassList.size();i++){
+                    Log.d("Last Record of Node", PairNodeModelClassList.get(i).toString());
+                    }
                     /**Molis teleiwsoun ta 26 attempts tha prepei na midenizete to Attempt kai na adeiazoun ta stoixeia tou xrisi**/
                     MainActivity.setAttempt(Attempt);
                     SensorPatternList.clear();
@@ -872,4 +910,13 @@ public class PatternLockView extends ViewGroup {
         }
 
     }
+
+    public long GetCenterNodeX(int NodeNum) {
+        return (long) 0.001;
+    }
+
+    public long GetCenterNodeY(int NodeNum) {
+        return (long) 0.002;
+    }
+
 }

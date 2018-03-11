@@ -50,4 +50,5 @@ public class PairMetadataModelClass {
         Avg_speeadAB = avg_speeadAB;
         Avg_pressure = avg_pressure;
     }
+
 }
