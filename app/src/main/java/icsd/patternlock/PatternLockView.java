@@ -38,6 +38,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static icsd.patternlock.MainActivity.username;
+
 /**
  * PatternLockView support two layout mode:
  * PatternLockView 支持两种布局模式：
@@ -146,7 +148,7 @@ public class PatternLockView extends ViewGroup {
     public ArrayList<RawPatternModelClass> RawPatternList = new ArrayList<>();
     public ArrayList<SensorDataModelClass> SensorPatternList = new ArrayList<>();
     public ArrayList<PairMetadataModelClass> PairMetaDataList=new ArrayList<>();
-    public static int Attempt;
+    public static int Attempt=1;
     public long TimeStart, TimeEnd, TimeToComplete;
 
 
@@ -540,12 +542,13 @@ public class PatternLockView extends ViewGroup {
                         Log.d("AIAIAIAIAIIAIA", String.valueOf(NodeSequence[i]));
                     }
                     int SequenceLength = NodeSequence.length;
-
+                    String username= MainActivity.GetUsername();
                     Log.d("oooooooooooooo", "nodeAt-->" + RawPatternList.toString());
                     /** Write RawPattern to a file **/
                     /**Get users name as filename **/
                     String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-                    String fileName = "AnalysisData.csv";
+
+                    String fileName = username+"_"+Attempt+"_"+"raw.csv";
                     String filePath = baseDir + File.separator + fileName;
 
                     /** Writing Raw Pattern data to CSV file**/
@@ -553,7 +556,7 @@ public class PatternLockView extends ViewGroup {
                         writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
                     }
                     /**Writing Sensor data to CSV file**/
-                    String SensorfileName = "SensorAnalysisData.csv";
+                    String SensorfileName = username+"_"+Attempt+"_"+"sensors.csv";
                     String SensorfilePath = baseDir + File.separator + SensorfileName;
                     for (int i = 0; i < SensorPatternList.size(); i++) {
                         writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
@@ -629,7 +632,10 @@ public class PatternLockView extends ViewGroup {
 
     public void CreatePairMetadataCsv(ArrayList<PairNodeModelClass> PairNodeModelClassList) {
         String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-        String PairMetadatafileName = "PairMetadatafile.csv";
+        //TODO Note that for each user, your app should create only one CSV file that
+        //TODO has as many rows as the inserted patterns. For example, if the user inserted 30 patterns then the
+        //TODO metadata file should have 30 rows with the generated metrics of each pattern (+1 for the header
+        String PairMetadatafileName = username+"_"+Attempt+"_"+"PairMetadatafile.csv";
         String PairMetadatafilePath = baseDir + File.separator + PairMetadatafileName;
 
         PairMetadataModelClass pairMetadataModelClass = new PairMetadataModelClass();
@@ -638,8 +644,7 @@ public class PatternLockView extends ViewGroup {
         // Attemp Number
         pairMetadataModelClass.setAttempt_number(Attempt);
         //Display Resolution
-        //TODO get the Display Resolution of the phone
-        pairMetadataModelClass.setScreen_resolution("");
+        pairMetadataModelClass.setScreen_resolution(MainActivity.GetScreenResolution());
         //Getting information about Pairs in list NodeA to NodeB
         for (int i = 0; i < PairNodeModelClassList.size() - 1; i++) {
             //Pattern Number of NodeA and NodeB

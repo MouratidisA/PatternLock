@@ -8,7 +8,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static double accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
     public static double gyro_x, gyro_y, gyro_z;
     public static double laccel_x, laccel_y, laccel_z;
+    public static int screenheight,screenwidth;
     public static String username;
     public  static int fingernum, handnum;
     private float[] gravity = new float[3];
@@ -102,6 +105,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mCircleLockView = (PatternLockView) findViewById(R.id.lock_view_circle);
         //mDotLockView = (PatternLockView) findViewById(R.id.lock_view_dot);
         mCurLockView = mCircleLockView;
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+         screenheight= metrics.heightPixels;
+         screenwidth = metrics.widthPixels;
 
     }
 
@@ -211,6 +219,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static int GetFingerNumber (){
         return fingernum;
     }
+    public static String GetScreenResolution (){return Integer.toString(screenheight)+"x"+Integer.toString(screenwidth) ;}
+
 
 }
 
