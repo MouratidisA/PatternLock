@@ -508,6 +508,7 @@ public class PatternLockView extends ViewGroup {
                     SensorPatternList.add(MainActivity.GetSensors());
                     RawPatternList.add(new RawPatternModelClass(NodeList.get(NodeList.size() - 1), SystemClock.elapsedRealtimeNanos(), (long) event.getRawX(), (long) event.getRawY(), event.getPressure()));
                     invalidate();
+
                 }
 
                 break;
@@ -641,9 +642,9 @@ public class PatternLockView extends ViewGroup {
         PairMetadataModelClass pairMetadataModelClass = new PairMetadataModelClass();
         //UserName
         pairMetadataModelClass.setUsername(MainActivity.GetUsername());
-        // Attemp Number
+        // Attempt Number
         pairMetadataModelClass.setAttempt_number(Attempt);
-        //Display Resolution
+        //Get Screen Resolution
         pairMetadataModelClass.setScreen_resolution(MainActivity.GetScreenResolution());
         //Getting information about Pairs in list NodeA to NodeB
         for (int i = 0; i < PairNodeModelClassList.size() - 1; i++) {
