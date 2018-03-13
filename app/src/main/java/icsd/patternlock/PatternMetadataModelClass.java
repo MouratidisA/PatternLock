@@ -25,7 +25,7 @@ public class PatternMetadataModelClass {
     /**
      * (1)-->Thump till (5)-->Pinky
      **/
-    private int FingerNum;
+    private String FingerNum;
 
     /**
      * (1)-->Left (2)-->Right
@@ -34,7 +34,7 @@ public class PatternMetadataModelClass {
             String userName, int attemtNumber, int[] sequence,
             int seqLength, long timeToComplete, long patternLength,
             long avgSpeed, float avgPressure, float highestPressure,
-            float lowestPressure, int hnadNum, int fingerNum) {
+            float lowestPressure, int hnadNum, String fingerNum) {
         UserName = userName;
         AttemtNumber = attemtNumber;
         Sequence = sequence;
@@ -145,11 +145,11 @@ public class PatternMetadataModelClass {
         HnadNum = hnadNum;
     }
 
-    public int getFingerNum() {
+    public String getFingerNum() {
         return FingerNum;
     }
 
-    public void setFingerNum(int fingerNum) {
+    public void setFingerNum(String fingerNum) {
         FingerNum = fingerNum;
     }
 }

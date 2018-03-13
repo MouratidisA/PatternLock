@@ -32,7 +32,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static double laccel_x, laccel_y, laccel_z;
     public static int screenheight,screenwidth;
     public static String username;
-    public  static int fingernum, handnum;
+    public  static int  handnum;
+    public  static String fingernum;
     private float[] gravity = new float[3];
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGyroscope;
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     int radioId = radioGroup.indexOfChild(radioButton);
                     RadioButton btn = (RadioButton) radioGroup.getChildAt(radioId);
                     selection = (String) btn.getText();
-                    fingernum=Integer.getInteger(selection);
+                    fingernum=selection;
                 }
                 int checkedRadioButton=radioGroup.getCheckedRadioButtonId();
                 radioButton = findViewById(checkedRadioButton);
@@ -216,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static int GetHandNumber (){
         return handnum;
     }
-    public static int GetFingerNumber (){
+    public static String GetFingerNumber (){
         return fingernum;
     }
     public static String GetScreenResolution (){return Integer.toString(screenheight)+"x"+Integer.toString(screenwidth) ;}

@@ -40,7 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static icsd.patternlock.MainActivity.username;
+
 
 /**
  * PatternLockView support two layout mode:
@@ -82,6 +82,7 @@ public class PatternLockView extends ViewGroup {
      * 解锁错误
      */
     public static final int CODE_PASSWORD_ERROR = 2;
+    public  static String username=MainActivity.GetUsername();
 
     private static final String TAG = "PatternLockView";
     private static final boolean DEBUG = BuildConfig.DEBUG;
@@ -552,7 +553,7 @@ public class PatternLockView extends ViewGroup {
                         }
                         /**Pattern Metadata File**/
                         int SequenceLength = NodeSequence.length;
-                        String username = MainActivity.GetUsername();
+                         username = MainActivity.GetUsername();
                         Log.d("oooooooooooooo", "nodeAt-->" + RawPatternList.toString());
                         PatternMetadataModelClass patternMetadataModelClass = new PatternMetadataModelClass
                                 (
