@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
 
@@ -32,6 +33,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -147,9 +149,11 @@ public class PatternLockView extends ViewGroup {
     public ArrayList<Integer> NodeList = new ArrayList<>();
     public ArrayList<RawPatternModelClass> RawPatternList = new ArrayList<>();
     public ArrayList<SensorDataModelClass> SensorPatternList = new ArrayList<>();
-    public ArrayList<PairMetadataModelClass> PairMetaDataList=new ArrayList<>();
-    public static int Attempt=1;
+    public ArrayList<PairMetadataModelClass> PairMetaDataList = new ArrayList<>();
+    public ArrayList<PatternMetadataModelClass> PatternMetadataList = new ArrayList<>();
+    public static int Attempt = 0;
     public long TimeStart, TimeEnd, TimeToComplete;
+    private int PatternNodesCounter = 0;
 
 
     public PatternLockView(Context context) {
@@ -483,9 +487,9 @@ public class PatternLockView extends ViewGroup {
 
                 if (currentNode == null) {
                     if (nodeAt != null) {
-                        Log.d("EEEEEEEEEEEEEE", "nodeAt-->" + nodeAt.getNodeId());
+                        Log.d("FirstPatternNodeTouched", "nodeAt-->" + nodeAt.getNodeId());
                         NodeList.add(nodeAt.getNodeId() + 1);
-
+                        PatternNodesCounter++;
 
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
@@ -494,9 +498,9 @@ public class PatternLockView extends ViewGroup {
                     }
                 } else {
                     if (nodeAt != null && !nodeAt.isHighLighted()) {
-                        Log.d("oooooooooooooo", "nodeAt-->" + nodeAt.getNodeId());
+                        Log.d("NextPatternNodeTouched", "nodeAt-->" + nodeAt.getNodeId());
                         NodeList.add(nodeAt.getNodeId() + 1);
-
+                        PatternNodesCounter++;
                         if (mIsAutoLink) {
                             autoLinkNode(currentNode, nodeAt);
                         }
@@ -507,6 +511,7 @@ public class PatternLockView extends ViewGroup {
                     /**Addind Raw Data  Here !!**/
                     SensorPatternList.add(MainActivity.GetSensors());
                     RawPatternList.add(new RawPatternModelClass(NodeList.get(NodeList.size() - 1), SystemClock.elapsedRealtimeNanos(), (long) event.getRawX(), (long) event.getRawY(), event.getPressure()));
+
                     invalidate();
 
                 }
@@ -529,106 +534,163 @@ public class PatternLockView extends ViewGroup {
                     postDelayed(mFinishAction, mFinishTimeout);
 
                     /****/
-                    /**End time of Pattern**/
-                    TimeEnd = SystemClock.elapsedRealtimeNanos();
-                    TimeToComplete = TimeEnd - TimeStart;
-                    // NodeSequence from NodeList without duplicates for PatternMetadataModeClass
-                    Set<Integer> hs = new LinkedHashSet<>(NodeList);
-                    hs.addAll(NodeList);
-                    ArrayList<Integer> tempList = new ArrayList<>();
-                    tempList.addAll(hs);
-                    int[] NodeSequence = new int[hs.size()];
-                    for (int i = 0; i < hs.size(); i++) {
-                        NodeSequence[i] = tempList.get(i);
-                        Log.d("AIAIAIAIAIIAIA", String.valueOf(NodeSequence[i]));
-                    }
-                    int SequenceLength = NodeSequence.length;
-                    String username= MainActivity.GetUsername();
-                    Log.d("oooooooooooooo", "nodeAt-->" + RawPatternList.toString());
-                    /** Write RawPattern to a file **/
-                    /**Get users name as filename **/
-                    String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-
-                    String fileName = username+"_"+Attempt+"_"+"raw.csv";
-                    String filePath = baseDir + File.separator + fileName;
-
-                    /** Writing Raw Pattern data to CSV file**/
-                    for (int i = 0; i < RawPatternList.size(); i++) {
-                        writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
-                    }
-                    /**Writing Sensor data to CSV file**/
-                    String SensorfileName = username+"_"+Attempt+"_"+"sensors.csv";
-                    String SensorfilePath = baseDir + File.separator + SensorfileName;
-                    for (int i = 0; i < SensorPatternList.size(); i++) {
-                        writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
-                    }
-                    /**CLEANING the list for next Pattern**/
-                    Attempt++;
-                    /**TODO Make attempt number change every pattern that has at least 4 nodes!!
-                     /* PairNode Data for PairNodeModelClass!*/
-                    ArrayList<PairNodeModelClass> PairNodeModelClassList = new ArrayList<>();
-                    RawPatternModelClass first_record_of_a_node = null, last_record_of_a_node = null;
-
-
-                    for (int i = 0; i < RawPatternList.size(); i++) {
-                        first_record_of_a_node = RawPatternList.get(i); // The first record of a Node
-                        //searching till the last record of the node
-                        int PressureCount = 0; // count the number of recorder points' pressure
-                        float PressureSum = 0; // sum of all points' pressure on the same Node
-                        int j = i;
-                        while (RawPatternList.get(j).getNumber_of_activated_point() == first_record_of_a_node.getNumber_of_activated_point()) {
-                            // if next RawPatternModelClass Number of Node differs from the current Number of node then pass current to temp2 as the last record of that Node
-                            i = j;
-                            PressureCount++;
-                            PressureSum += RawPatternList.get(j).getPressure();
-                            last_record_of_a_node = RawPatternList.get(j);
-                            int tp = j;
-                            tp++;
-                            if (tp == RawPatternList.size()) {
-                                //i = j;
-                                break;
-                            } else {
-                                j++;
-                            }
+                    if (PatternNodesCounter >= 4) {
+                        Attempt++;
+                        /**End time of Pattern**/
+                        TimeEnd = SystemClock.elapsedRealtimeNanos();
+                        TimeToComplete = TimeEnd - TimeStart;
+                        // NodeSequence from NodeList without duplicates for PatternMetadataModeClass
+                        Set<Integer> hs = new LinkedHashSet<>(NodeList);
+                        hs.addAll(NodeList);
+                        ArrayList<Integer> tempList = new ArrayList<>();
+                        tempList.addAll(hs);
+                        int[] NodeSequence = new int[hs.size()];
+                        /**PRINTING THE HASHSET sequence without duplicates**/
+                        for (int i = 0; i < hs.size(); i++) {
+                            NodeSequence[i] = tempList.get(i);
+                            Log.d("AIAIAIAIAIIAIA", String.valueOf(NodeSequence[i]));
                         }
-                        /**Adding The first and the last record of the Node to a PairNodeModelClass**/
-                        PairNodeModelClassList.add(
-                                new PairNodeModelClass(
-                                        first_record_of_a_node.getNumber_of_activated_point(),
-                                        GetCenterNodeX(first_record_of_a_node.getNumber_of_activated_point()),
-                                        GetCenterNodeY(first_record_of_a_node.getNumber_of_activated_point()),
-                                        first_record_of_a_node.getX(),
-                                        first_record_of_a_node.getY(),
-                                        last_record_of_a_node.getX(),
-                                        last_record_of_a_node.getY(),
-                                        last_record_of_a_node.getTimestamp(),
-                                        first_record_of_a_node.getTimestamp(),
-                                        PressureSum, PressureCount));
+                        /**Pattern Metadata File**/
+                        int SequenceLength = NodeSequence.length;
+                        String username = MainActivity.GetUsername();
+                        Log.d("oooooooooooooo", "nodeAt-->" + RawPatternList.toString());
+                        PatternMetadataModelClass patternMetadataModelClass = new PatternMetadataModelClass
+                                (
+                                        username,
+                                        Attempt,
+                                        NodeSequence,
+                                        SequenceLength,
+                                        TimeToComplete,
+                                        (long) 0.11111,
+                                        (long) 0.321,
+                                        getPatternAvgPreassure(RawPatternList),
+                                        getPatternHighestPreassure(RawPatternList),
+                                        getPatternLowestPreassure(RawPatternList),
+                                        MainActivity.GetHandNumber(),
+                                        MainActivity.GetFingerNumber()
+                                );
+                        PatternMetadataList.add(patternMetadataModelClass);
+                        /** Writing PatternMetadata to CSV file**/
+                        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+                        String PatternMetadatafileName = username + "_" + Attempt + "_" + "PatternMetadata.csv";
+                        String PatternMetadatafilePath = baseDir + File.separator + PatternMetadatafileName;
+                        writeCSV(PatternMetadatafilePath, patternMetadataModelClass.getPatternMetadataModelClassToStringArray());
+
+                        /**RawPattern file **/
+                        /**Get users name as filename **/
+                        String fileName = username + "_" + Attempt + "_" + "raw.csv";
+                        String filePath = baseDir + File.separator + fileName;
+                        /** Writing Raw Pattern data to CSV file**/
+                        for (int i = 0; i < RawPatternList.size(); i++) {
+                            writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
+                        }
+                        /**Sensor file**/
+                        /**Writing Sensor data to CSV file**/
+                        String SensorfileName = username + "_" + Attempt + "_" + "sensors.csv";
+                        String SensorfilePath = baseDir + File.separator + SensorfileName;
+                        for (int i = 0; i < SensorPatternList.size(); i++) {
+                            writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
+                        }
 
 
-                    }
-                    /** Here we will take the list with PairNodeModeClass items to create the PairMetadata file **/
-                    CreatePairMetadataCsv(PairNodeModelClassList);
-                    /**Writing PairMetadata to CSV file**//*
+                        /**TODO Make attempt number change every pattern that has at least 4 nodes!!
+                         /* PairNode Data for PairNodeModelClass!*/
+                        ArrayList<PairNodeModelClass> PairNodeModelClassList = new ArrayList<>();
+                        RawPatternModelClass first_record_of_a_node = null, last_record_of_a_node = null;
+
+
+                        for (int i = 0; i < RawPatternList.size(); i++) {
+                            first_record_of_a_node = RawPatternList.get(i); // The first record of a Node
+                            //searching till the last record of the node
+                            int PressureCount = 0; // count the number of recorder points' pressure
+                            float PressureSum = 0; // sum of all points' pressure on the same Node
+                            int j = i;
+                            while (RawPatternList.get(j).getNumber_of_activated_point() == first_record_of_a_node.getNumber_of_activated_point()) {
+                                // if next RawPatternModelClass Number of Node differs from the current Number of node then pass current to temp2 as the last record of that Node
+                                i = j;
+                                PressureCount++;
+                                PressureSum += RawPatternList.get(j).getPressure();
+                                last_record_of_a_node = RawPatternList.get(j);
+                                int tp = j;
+                                tp++;
+                                if (tp == RawPatternList.size()) {
+                                    //i = j;
+                                    break;
+                                } else {
+                                    j++;
+                                }
+                            }
+                            /**Adding The first and the last record of the Node to a PairNodeModelClass**/
+                            PairNodeModelClassList.add(
+                                    new PairNodeModelClass(
+                                            first_record_of_a_node.getNumber_of_activated_point(),
+                                            GetCenterNodeX(first_record_of_a_node.getNumber_of_activated_point()),
+                                            GetCenterNodeY(first_record_of_a_node.getNumber_of_activated_point()),
+                                            first_record_of_a_node.getX(),
+                                            first_record_of_a_node.getY(),
+                                            last_record_of_a_node.getX(),
+                                            last_record_of_a_node.getY(),
+                                            last_record_of_a_node.getTimestamp(),
+                                            first_record_of_a_node.getTimestamp(),
+                                            PressureSum, PressureCount));
+
+
+                        }
+                        /** Here we will take the list with PairNodeModeClass items to create the PairMetadata file **/
+                        CreatePairMetadataCsv(PairNodeModelClassList);
+                        /**Writing PairMetadata to CSV file**//*
                     String PairMetadatafileName = "PairMetadatafile.csv";
                     String PairMetadatafilePath = baseDir + File.separator + PairMetadatafileName;
                     for (int i = 0; i < PairMetaDataList.size(); i++) {
                         writeCSV(PairMetadatafilePath, PairMetaDataList.get(i).getPairMetadataModelClassToStringArray()) ;
                     }*/
-                    for (int i = 0; i < PairNodeModelClassList.size(); i++) {
-                        Log.d("Last Record of Node", PairNodeModelClassList.get(i).toString());
+                        for (int i = 0; i < PairNodeModelClassList.size(); i++) {
+                            Log.d("Last Record of Node", PairNodeModelClassList.get(i).toString());
+                        }
+                    } else {
+                        // At least 4 nodes in a Pattern
+                        PatternNodesCounter = 0;
+                        Toast.makeText(this.getContext(), "Small Pattern", Toast.LENGTH_SHORT).show();
                     }
+                    /**CLEANING the lists for next Pattern**/
                     /**Molis teleiwsoun ta 26 attempts tha prepei na midenizete to Attempt kai na adeiazoun ta stoixeia tou xrisi**/
                     MainActivity.setAttempt(Attempt);
                     SensorPatternList.clear();
                     RawPatternList.clear();
                     NodeList.clear();
-
-
                 }
                 break;
         }
         return true;
+    }
+
+    public float getPatternHighestPreassure(ArrayList<RawPatternModelClass> RawList) {
+        float HighestPressure = Long.MIN_VALUE;
+        for (int i = 0; i < RawList.size(); i++) {
+            if (RawList.get(i).getPressure() > HighestPressure) {
+                HighestPressure = RawList.get(i).getPressure();
+            }
+        }
+        return HighestPressure;
+    }
+
+    public float getPatternLowestPreassure(ArrayList<RawPatternModelClass> RawList) {
+        float LowestPressure = Long.MAX_VALUE;
+        for (int i = 0; i < RawList.size(); i++) {
+            if (RawList.get(i).getPressure() < LowestPressure) {
+                LowestPressure = RawList.get(i).getPressure();
+            }
+        }
+        return LowestPressure;
+    }
+
+    public long getPatternAvgPreassure(ArrayList<RawPatternModelClass> RawList) {
+        int count = RawList.size();
+        long PressureSum = 0;
+        for (int i = 0; i < RawList.size(); i++) {
+            PressureSum += RawList.get(i).getPressure();
+        }
+        return PressureSum / count;
     }
 
     public void CreatePairMetadataCsv(ArrayList<PairNodeModelClass> PairNodeModelClassList) {
@@ -636,7 +698,7 @@ public class PatternLockView extends ViewGroup {
         //TODO Note that for each user, your app should create only one CSV file that
         //TODO has as many rows as the inserted patterns. For example, if the user inserted 30 patterns then the
         //TODO metadata file should have 30 rows with the generated metrics of each pattern (+1 for the header
-        String PairMetadatafileName = username+"_"+Attempt+"_"+"PairMetadatafile.csv";
+        String PairMetadatafileName = username + "_" + Attempt + "_" + "PairMetadatafile.csv";
         String PairMetadatafilePath = baseDir + File.separator + PairMetadatafileName;
 
         PairMetadataModelClass pairMetadataModelClass = new PairMetadataModelClass();
@@ -678,7 +740,7 @@ public class PatternLockView extends ViewGroup {
 
             pairMetadataModelClass.setAvg_pressure((long) (PairNodeModelClassList.get(i).getNodePressure() + PairNodeModelClassList.get(i + 1).getNodePressure()) / (PairNodeModelClassList.get(i).getTouchPointsCount() + PairNodeModelClassList.get(i + 1).getTouchPointsCount()));
             /**Writing PairMetadata row to CSV file**/
-                writeCSV(PairMetadatafilePath,  pairMetadataModelClass.getPairMetadataModelClassToStringArray()) ;
+            writeCSV(PairMetadatafilePath, pairMetadataModelClass.getPairMetadataModelClassToStringArray());
         }
 
     }
@@ -829,7 +891,6 @@ public class PatternLockView extends ViewGroup {
          * @return return value 解锁结果返回值：
          * {@link #CODE_PASSWORD_CORRECT},
          * {@link #CODE_PASSWORD_ERROR},
-         * @see com.reginald.patternlockview.PatternLockView.Password
          */
         int onFinish(Password password);
     }

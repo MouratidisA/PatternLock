@@ -1,5 +1,7 @@
 package icsd.patternlock;
 
+import java.util.Arrays;
+
 /**
  * Created by Argiris Mouratidis on 10-Mar-18.
  */
@@ -44,6 +46,110 @@ public class PatternMetadataModelClass {
         HighestPressure = highestPressure;
         LowestPressure = lowestPressure;
         HnadNum = hnadNum;
+        FingerNum = fingerNum;
+    }
+
+    public String[] getPatternMetadataModelClassToStringArray() {
+        return new String[]{String.valueOf(UserName), String.valueOf(AttemtNumber),Arrays.toString(Arrays.toString(Sequence).split("[\\[\\]]")[1].split(", ")) ,
+                String.valueOf(SeqLength), String.valueOf(TimeToComplete), String.valueOf(PatternLength),
+                String.valueOf(AvgSpeed), String.valueOf(AvgPressure),
+                String.valueOf(HighestPressure), String.valueOf(LowestPressure), String.valueOf(HnadNum),
+                String.valueOf(FingerNum)};
+    }
+
+    public String getUserName() {
+        return UserName;
+    }
+
+    public void setUserName(String userName) {
+        UserName = userName;
+    }
+
+    public int getAttemtNumber() {
+        return AttemtNumber;
+    }
+
+    public void setAttemtNumber(int attemtNumber) {
+        AttemtNumber = attemtNumber;
+    }
+
+    public int[] getSequence() {
+        return Sequence;
+    }
+
+    public void setSequence(int[] sequence) {
+        Sequence = sequence;
+    }
+
+    public int getSeqLength() {
+        return SeqLength;
+    }
+
+    public void setSeqLength(int seqLength) {
+        SeqLength = seqLength;
+    }
+
+    public long getTimeToComplete() {
+        return TimeToComplete;
+    }
+
+    public void setTimeToComplete(long timeToComplete) {
+        TimeToComplete = timeToComplete;
+    }
+
+    public long getPatternLength() {
+        return PatternLength;
+    }
+
+    public void setPatternLength(long patternLength) {
+        PatternLength = patternLength;
+    }
+
+    public long getAvgSpeed() {
+        return AvgSpeed;
+    }
+
+    public void setAvgSpeed(long avgSpeed) {
+        AvgSpeed = avgSpeed;
+    }
+
+    public float getAvgPressure() {
+        return AvgPressure;
+    }
+
+    public void setAvgPressure(float avgPressure) {
+        AvgPressure = avgPressure;
+    }
+
+    public float getHighestPressure() {
+        return HighestPressure;
+    }
+
+    public void setHighestPressure(float highestPressure) {
+        HighestPressure = highestPressure;
+    }
+
+    public float getLowestPressure() {
+        return LowestPressure;
+    }
+
+    public void setLowestPressure(float lowestPressure) {
+        LowestPressure = lowestPressure;
+    }
+
+    public int getHnadNum() {
+        return HnadNum;
+    }
+
+    public void setHnadNum(int hnadNum) {
+        HnadNum = hnadNum;
+    }
+
+    public int getFingerNum() {
+        return FingerNum;
+    }
+
+    public void setFingerNum(int fingerNum) {
         FingerNum = fingerNum;
     }
 }
