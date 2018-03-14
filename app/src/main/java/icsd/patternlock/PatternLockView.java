@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Set;
 
 
-
 /**
  * PatternLockView support two layout mode:
  * PatternLockView 支持两种布局模式：
@@ -82,7 +81,7 @@ public class PatternLockView extends ViewGroup {
      * 解锁错误
      */
     public static final int CODE_PASSWORD_ERROR = 2;
-    public  static String username=MainActivity.GetUsername();
+    public static String username = MainActivity.GetUsername();
 
     private static final String TAG = "PatternLockView";
     private static final boolean DEBUG = BuildConfig.DEBUG;
@@ -152,6 +151,13 @@ public class PatternLockView extends ViewGroup {
     public ArrayList<SensorDataModelClass> SensorPatternList = new ArrayList<>();
     public ArrayList<PairMetadataModelClass> PairMetaDataList = new ArrayList<>();
     public ArrayList<PatternMetadataModelClass> PatternMetadataList = new ArrayList<>();
+    public ArrayList<String> LongRun = new ArrayList<>();
+    public ArrayList<String> ClosedCurves = new ArrayList<>();
+    public ArrayList<String> LongCurves = new ArrayList<>();
+    public ArrayList<String> LongEdges = new ArrayList<>();
+    // TODO public ArrayList<String> ShortEdges = new ArrayList<>();
+    public ArrayList<String> LongOrthogonalEdges = new ArrayList<>();
+    public ArrayList<String> ShortOrthogonalEdges = new ArrayList<>();
     public static int Attempt = 0;
     public long TimeStart, TimeEnd, TimeToComplete;
     private int PatternNodesCounter = 0;
@@ -553,7 +559,7 @@ public class PatternLockView extends ViewGroup {
                         }
                         /**Pattern Metadata File**/
                         int SequenceLength = NodeSequence.length;
-                         username = MainActivity.GetUsername();
+                        username = MainActivity.GetUsername();
                         Log.d("oooooooooooooo", "nodeAt-->" + RawPatternList.toString());
                         PatternMetadataModelClass patternMetadataModelClass = new PatternMetadataModelClass
                                 (
@@ -571,8 +577,13 @@ public class PatternLockView extends ViewGroup {
                                         MainActivity.GetFingerNumber()
                                 );
                         PatternMetadataList.add(patternMetadataModelClass);
-                        /** Writing PatternMetadata to CSV file**/
+                        /**Setting up Folder for every User**/
                         String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+                        File userFolder = new File (android.os.Environment.getExternalStorageDirectory()+ File.separator +username);
+                        userFolder.mkdirs();
+                        baseDir = userFolder.getAbsolutePath();
+                        /** Writing PatternMetadata to CSV file**/
+
                         String PatternMetadatafileName = username + "_" + Attempt + "_" + "PatternMetadata.csv";
                         String PatternMetadatafilePath = baseDir + File.separator + PatternMetadatafileName;
                         writeCSV(PatternMetadatafilePath, patternMetadataModelClass.getPatternMetadataModelClassToStringArray());
@@ -593,8 +604,6 @@ public class PatternLockView extends ViewGroup {
                             writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
                         }
 
-
-                        /**TODO Make attempt number change every pattern that has at least 4 nodes!!
                          /* PairNode Data for PairNodeModelClass!*/
                         ArrayList<PairNodeModelClass> PairNodeModelClassList = new ArrayList<>();
                         RawPatternModelClass first_record_of_a_node = null, last_record_of_a_node = null;
