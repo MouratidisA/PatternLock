@@ -153,7 +153,7 @@ public class PatternLockView extends ViewGroup {
     public ArrayList<SensorDataModelClass> SensorPatternList = new ArrayList<>();
     public ArrayList<PairMetadataModelClass> PairMetaDataList = new ArrayList<>();
     public ArrayList<PatternMetadataModelClass> PatternMetadataList = new ArrayList<>();
-    public ArrayList<String> LongRun = new ArrayList<>();
+    public static ArrayList<StatisticalAnalysisModelClass> statisticalAnalysisModelClassList = new ArrayList<>();
 
 
     public int LongrunCounter,ClosedCurvesCounter,LongCurvesCounter,LongEdgesCounter,LongOrthogonalEdgesCounter,ShortOrthogonalEdgesCounter;
@@ -628,6 +628,8 @@ public class PatternLockView extends ViewGroup {
                         Log.d("LongOrthogonalEdgesCou",Integer.toString(LongOrthogonalEdgesCounter));
                         Log.d("ShortOrthogonalEdgesCou",Integer.toString(ShortOrthogonalEdgesCounter));
 
+                        StatisticalAnalysisModelClass statisticalAnalysisModelClass= new StatisticalAnalysisModelClass(LongrunCounter,ClosedCurvesCounter,LongCurvesCounter,LongEdgesCounter,999,LongOrthogonalEdgesCounter,ShortOrthogonalEdgesCounter);
+                        statisticalAnalysisModelClassList.add(statisticalAnalysisModelClass);
 
                         /**Setting up Folder for every User**/
                         String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
