@@ -31,12 +31,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static double gyro_x, gyro_y, gyro_z;
     public static double laccel_x, laccel_y, laccel_z;
     public static int screenheight,screenwidth;
+    public static ArrayList<String> Longrun = new ArrayList<>();
+    public static ArrayList<String> ClosedCurves = new ArrayList<>();
+    public static ArrayList<String> LongCurves = new ArrayList<>();
+    public static ArrayList<String> LongEdges = new ArrayList<>();
+    // TODO public ArrayList<String> ShortEdges = new ArrayList<>();
+    public static ArrayList<String> LongOrthogonalEdges = new ArrayList<>();
+    public static ArrayList<String> ShortOrthogonalEdges = new ArrayList<>();
     public static String username;
     public  static int  handnum;
     public  static String fingernum;
     private float[] gravity = new float[3];
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGyroscope;
+
 
 
     public  EditText UserName, Info;
@@ -58,6 +66,125 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Longrun.add("123");
+        Longrun.add("321");
+        Longrun.add("456");
+        Longrun.add("654");
+        Longrun.add("789");
+        Longrun.add("987");
+        Longrun.add("147");
+        Longrun.add("741");
+        Longrun.add("258");
+        Longrun.add("852");
+        Longrun.add("369");
+        Longrun.add("963");
+        Longrun.add("159");
+        Longrun.add("951");
+        Longrun.add("357");
+        Longrun.add("753");
+
+        ClosedCurves.add("1452");
+        ClosedCurves.add("2541");
+        ClosedCurves.add("1254");
+        ClosedCurves.add("4521");
+        ClosedCurves.add("4125");
+        ClosedCurves.add("5214");
+        ClosedCurves.add("5412");
+        ClosedCurves.add("2145");
+        ClosedCurves.add("2563");
+        ClosedCurves.add("3652");
+        ClosedCurves.add("2365");
+        ClosedCurves.add("5632");
+        ClosedCurves.add("5236");
+        ClosedCurves.add("6325");
+        ClosedCurves.add("3256");
+        ClosedCurves.add("6523");
+        ClosedCurves.add("4785");
+        ClosedCurves.add("5874");
+        ClosedCurves.add("7458");
+        ClosedCurves.add("8547");
+        ClosedCurves.add("5478");
+        ClosedCurves.add("8745");
+        ClosedCurves.add("4587");
+        ClosedCurves.add("7854");
+        ClosedCurves.add("5896");
+        ClosedCurves.add("6985");
+        ClosedCurves.add("8560");
+        ClosedCurves.add("0658");
+        ClosedCurves.add("6580");
+        ClosedCurves.add("0856");
+        ClosedCurves.add("8065");
+        ClosedCurves.add("5608");
+
+        LongCurves.add("147852");
+        LongCurves.add("258741");
+        LongCurves.add("123654");
+        LongCurves.add("456321");
+        LongCurves.add("258963");
+        LongCurves.add("369852");
+        LongCurves.add("456987");
+        LongCurves.add("789654");
+
+        LongEdges.add("741258");
+        LongEdges.add("32147");
+        LongEdges.add("14753");
+        LongEdges.add("35741");
+        LongEdges.add("75321");
+        LongEdges.add("12357");
+        LongEdges.add("35789");
+        LongEdges.add("98753");
+        LongEdges.add("75369");
+        LongEdges.add("96357");
+        LongEdges.add("78963");
+        LongEdges.add("36987");
+
+        LongOrthogonalEdges.add("14789");
+        LongOrthogonalEdges.add("98741");
+        LongOrthogonalEdges.add("12369");
+        LongOrthogonalEdges.add("96321");
+        LongOrthogonalEdges.add("32147");
+        LongOrthogonalEdges.add("74123");
+        LongOrthogonalEdges.add("78963");
+        LongOrthogonalEdges.add("36987");
+
+        ShortOrthogonalEdges.add("145");
+        ShortOrthogonalEdges.add("541");
+        ShortOrthogonalEdges.add("412");
+        ShortOrthogonalEdges.add("214");
+        ShortOrthogonalEdges.add("125");
+        ShortOrthogonalEdges.add("521");
+        ShortOrthogonalEdges.add("254");
+        ShortOrthogonalEdges.add("452");
+        ShortOrthogonalEdges.add("256");
+        ShortOrthogonalEdges.add("652");
+        ShortOrthogonalEdges.add("523");
+        ShortOrthogonalEdges.add("325");
+        ShortOrthogonalEdges.add("236");
+        ShortOrthogonalEdges.add("632");
+        ShortOrthogonalEdges.add("365");
+        ShortOrthogonalEdges.add("563");
+        ShortOrthogonalEdges.add("478");
+        ShortOrthogonalEdges.add("874");
+        ShortOrthogonalEdges.add("745");
+        ShortOrthogonalEdges.add("547");
+        ShortOrthogonalEdges.add("458");
+        ShortOrthogonalEdges.add("854");
+        ShortOrthogonalEdges.add("587");
+        ShortOrthogonalEdges.add("785");
+        ShortOrthogonalEdges.add("589");
+        ShortOrthogonalEdges.add("985");
+        ShortOrthogonalEdges.add("856");
+        ShortOrthogonalEdges.add("658");
+        ShortOrthogonalEdges.add("569");
+        ShortOrthogonalEdges.add("965");
+        ShortOrthogonalEdges.add("698");
+        ShortOrthogonalEdges.add("896");
+
+
+
+
+
 
         UserName =(EditText) findViewById(R.id.UserName);
 

@@ -29,12 +29,14 @@ import android.widget.Toast;
 import com.opencsv.CSVWriter;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -152,12 +154,9 @@ public class PatternLockView extends ViewGroup {
     public ArrayList<PairMetadataModelClass> PairMetaDataList = new ArrayList<>();
     public ArrayList<PatternMetadataModelClass> PatternMetadataList = new ArrayList<>();
     public ArrayList<String> LongRun = new ArrayList<>();
-    public ArrayList<String> ClosedCurves = new ArrayList<>();
-    public ArrayList<String> LongCurves = new ArrayList<>();
-    public ArrayList<String> LongEdges = new ArrayList<>();
-    // TODO public ArrayList<String> ShortEdges = new ArrayList<>();
-    public ArrayList<String> LongOrthogonalEdges = new ArrayList<>();
-    public ArrayList<String> ShortOrthogonalEdges = new ArrayList<>();
+
+
+    public int LongrunCounter,ClosedCurvesCounter,LongCurvesCounter,LongEdgesCounter,LongOrthogonalEdgesCounter,ShortOrthogonalEdgesCounter;
     public static int Attempt = 0;
     public long TimeStart, TimeEnd, TimeToComplete;
     private int PatternNodesCounter = 0;
@@ -471,6 +470,8 @@ public class PatternLockView extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
+
         Log.d("Touch Point (x,y)", String.valueOf(event.getRawX()) + "---" + String.valueOf(event.getRawY()));
         PointList.add(new Point(event.getRawX(), event.getRawY(), event.getPressure()));
 
@@ -577,9 +578,60 @@ public class PatternLockView extends ViewGroup {
                                         MainActivity.GetFingerNumber()
                                 );
                         PatternMetadataList.add(patternMetadataModelClass);
+                        /**GET the node sequence and convert it from
+                         * string array to string
+                         * compare it with the Statisctical analysis list
+                         */
+
+                        //https://stackoverflow.com/a/5900209/5471823
+                        StringBuilder builder = new StringBuilder();
+                        for (int s : NodeSequence) {
+                            builder.append(s);
+                        }
+                        //TODO ShortEdges
+                        String nodesqn = builder.toString();
+                        for (int i =0;i<MainActivity.Longrun.size();i++){
+                           if( StringUtils.containsIgnoreCase(nodesqn,MainActivity.Longrun.get(i).toString())){
+                               LongrunCounter++;
+                            }
+                        }
+                        for (int i =0;i<MainActivity.ClosedCurves.size();i++){
+                            if( StringUtils.containsIgnoreCase(nodesqn,MainActivity.ClosedCurves.get(i).toString())){
+                                ClosedCurvesCounter++;
+                            }
+                        }
+                        for (int i =0;i<MainActivity.LongCurves.size();i++){
+                            if( StringUtils.containsIgnoreCase(nodesqn,MainActivity.LongCurves.get(i).toString())){
+                                LongCurvesCounter++;
+                            }
+                        }
+                        for (int i =0;i<MainActivity.LongEdges.size();i++){
+                            if( StringUtils.containsIgnoreCase(nodesqn,MainActivity.LongEdges.get(i).toString())){
+                                LongEdgesCounter++;
+                            }
+                        }
+                        for (int i =0;i<MainActivity.LongOrthogonalEdges.size();i++){
+                            if( StringUtils.containsIgnoreCase(nodesqn,MainActivity.LongOrthogonalEdges.get(i).toString())){
+                                LongOrthogonalEdgesCounter++;
+                            }
+                        }
+                        for (int i =0;i<MainActivity.ShortOrthogonalEdges.size();i++){
+                            if( StringUtils.containsIgnoreCase(nodesqn,MainActivity.ShortOrthogonalEdges.get(i).toString())){
+                                ShortOrthogonalEdgesCounter++;
+                            }
+                        }
+
+                        Log.d("LongrunCounter",Integer.toString(LongrunCounter));
+                        Log.d("ClosedCurvesCounter",Integer.toString(ClosedCurvesCounter));
+                        Log.d("LongCurvesCounter",Integer.toString(LongCurvesCounter));
+                        Log.d("LongEdgesCounter",Integer.toString(LongEdgesCounter));
+                        Log.d("LongOrthogonalEdgesCou",Integer.toString(LongOrthogonalEdgesCounter));
+                        Log.d("ShortOrthogonalEdgesCou",Integer.toString(ShortOrthogonalEdgesCounter));
+
+
                         /**Setting up Folder for every User**/
                         String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-                        File userFolder = new File (android.os.Environment.getExternalStorageDirectory()+ File.separator +username);
+                        File userFolder = new File(android.os.Environment.getExternalStorageDirectory() + File.separator + username);
                         userFolder.mkdirs();
                         baseDir = userFolder.getAbsolutePath();
                         /** Writing PatternMetadata to CSV file**/
@@ -668,6 +720,10 @@ public class PatternLockView extends ViewGroup {
                     SensorPatternList.clear();
                     RawPatternList.clear();
                     NodeList.clear();
+                    LongrunCounter=0;
+                    ClosedCurvesCounter=0;
+                    LongCurvesCounter=0;
+                    LongEdgesCounter=0;
                 }
                 break;
         }
@@ -710,6 +766,7 @@ public class PatternLockView extends ViewGroup {
         //TODO metadata file should have 30 rows with the generated metrics of each pattern (+1 for the header
         String PairMetadatafileName = username + "_" + Attempt + "_" + "PairMetadatafile.csv";
         String PairMetadatafilePath = baseDir + File.separator + PairMetadatafileName;
+
 
         PairMetadataModelClass pairMetadataModelClass = new PairMetadataModelClass();
         //UserName
@@ -1042,6 +1099,10 @@ public class PatternLockView extends ViewGroup {
         String filePath = baseDir + File.separator + fileName;*/
         CSVWriter writer = null;
         try {
+            File f = new File(Environment.getExternalStorageDirectory(), filePath);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
             writer = new CSVWriter(new FileWriter(filePath, true));
             writer.writeNext(data);
             writer.flush();
