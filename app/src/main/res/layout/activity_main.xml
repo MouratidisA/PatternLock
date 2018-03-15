@@ -123,6 +123,13 @@
         android:layout_weight="0"
         android:text="Submit" />
 
+    <Button
+        android:id="@+id/StatisticalAnalysis"
+        android:layout_width="396dp"
+        android:layout_height="35dp"
+        android:layout_weight="0"
+        android:text="StatisticalAnalysis" />
+
     <icsd.patternlock.PatternLockView
         android:id="@+id/lock_view_circle"
         android:layout_width="match_parent"

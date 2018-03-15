@@ -156,7 +156,7 @@ public class PatternLockView extends ViewGroup {
     public static ArrayList<StatisticalAnalysisModelClass> statisticalAnalysisModelClassList = new ArrayList<>();
 
 
-    public int LongrunCounter,ClosedCurvesCounter,LongCurvesCounter,LongEdgesCounter,LongOrthogonalEdgesCounter,ShortOrthogonalEdgesCounter;
+    public static int LongrunCounter=0,ClosedCurvesCounter=0,LongCurvesCounter=0,LongEdgesCounter=0,LongOrthogonalEdgesCounter=0,ShortOrthogonalEdgesCounter=0;
     public static int Attempt = 0;
     public long TimeStart, TimeEnd, TimeToComplete;
     private int PatternNodesCounter = 0;
@@ -621,15 +621,7 @@ public class PatternLockView extends ViewGroup {
                             }
                         }
 
-                        Log.d("LongrunCounter",Integer.toString(LongrunCounter));
-                        Log.d("ClosedCurvesCounter",Integer.toString(ClosedCurvesCounter));
-                        Log.d("LongCurvesCounter",Integer.toString(LongCurvesCounter));
-                        Log.d("LongEdgesCounter",Integer.toString(LongEdgesCounter));
-                        Log.d("LongOrthogonalEdgesCou",Integer.toString(LongOrthogonalEdgesCounter));
-                        Log.d("ShortOrthogonalEdgesCou",Integer.toString(ShortOrthogonalEdgesCounter));
 
-                        StatisticalAnalysisModelClass statisticalAnalysisModelClass= new StatisticalAnalysisModelClass(LongrunCounter,ClosedCurvesCounter,LongCurvesCounter,LongEdgesCounter,999,LongOrthogonalEdgesCounter,ShortOrthogonalEdgesCounter);
-                        statisticalAnalysisModelClassList.add(statisticalAnalysisModelClass);
 
                         /**Setting up Folder for every User**/
                         String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -722,10 +714,6 @@ public class PatternLockView extends ViewGroup {
                     SensorPatternList.clear();
                     RawPatternList.clear();
                     NodeList.clear();
-                    LongrunCounter=0;
-                    ClosedCurvesCounter=0;
-                    LongCurvesCounter=0;
-                    LongEdgesCounter=0;
                 }
                 break;
         }

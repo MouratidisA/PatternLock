@@ -1,5 +1,6 @@
 package icsd.patternlock;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Switch hand;
     private RadioGroup radioGroup;
     private RadioButton radioButton;
-    private Button submit;
+    private Button submit,statisticalAnalysis;
 
     public static void setAttempt(int attempts) {
         Attempt.setText(String.valueOf(attempts));
@@ -191,8 +192,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Attempt = findViewById(R.id.Attempt);
         hand = findViewById(R.id.hand);
         radioGroup = (RadioGroup) findViewById(R.id.finger);
-
-
+        statisticalAnalysis= findViewById(R.id.StatisticalAnalysis);
+        statisticalAnalysis.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(MainActivity.this, DisplayStatisticalAnalysisActivity.class);
+                MainActivity.this.startActivity(myIntent);
+            }
+        });
         submit=findViewById(R.id.submit);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
