@@ -43,77 +43,33 @@ import java.util.List;
 import java.util.Set;
 
 
-/**
- * PatternLockView support two layout mode:
- * PatternLockView 支持两种布局模式：
- * <p>
- * 1. SpacingPadding mode:
- * If lock_spacing is given, PatternLockView use lock_nodeSize, lock_spacing and lock_padding to layout the view.
- * Detail Rules:
- * a. Use exactly lock_nodeSize, spacing and lock_padding to layout. If insufficient space, try b.
- * b. Keep lock_nodeSize, reduce lock_spacing and lock_padding with equal proportion. If insufficient space, try c.
- * c. Keep lock_spacing and lock_padding, reduce lock_nodeSize. If insufficient space, try d.
- * d. Apply Identical-Area mode.
- * <p>
- * 如果设置了lock_spacing时，PatternLockView会使用lock_nodeSize, lock_spacing, lock_padding去布局
- * 具体布局规则如下：
- * a.精确按照lock_nodeSize, lock_spacing, lock_padding去布局进行布局，如果空间不足采用b规则；
- * b.保持lock_nodeSize大小不变，按比例缩小lock_spacing与lock_padding去布局，如果spacing与padding空间小于0，采用c规则；
- * c.保持lock_spacing与lock_padding，缩小lock_nodeSize，如果lock_nodeSize小于0，采用d规则；
- * d.采用Identical-Area mode；
- * <p>
- * 2. Identical-Area mode:
- * If lock_spacing is NOT given, PatternLockView only use lock_nodeSize to layout the view(lock_spacing and lock_padding are ignored).
- * It divides the whole area into n * n identical cells, and layout the node in the center of each cell
- * <p>
- * 如果未设置lock_spacing时，PatternLockView将只使用lock_nodeSize，而无视lock_spacing与lock_padding去布局。
- * 其会将空间等分为n * n个空间，并将节点居中放置
- *
- * @author xyxyLiu
- * @version 1.0
- */
 public class PatternLockView extends ViewGroup {
-    /**
-     * password correct
-     * 解锁正确
-     */
+
     public static final int CODE_PASSWORD_CORRECT = 1;
-    /**
-     * password error
-     * 解锁错误
-     */
     public static final int CODE_PASSWORD_ERROR = 2;
     public static String username = MainActivity.GetUsername();
-
     private static final String TAG = "PatternLockView";
     private static final boolean DEBUG = BuildConfig.DEBUG;
-
     // attributes that can be configured with code (non-persistent)
     private boolean mIsTouchEnabled = true;
     private long mFinishTimeout = 1000;
     private boolean mIsFinishInterruptable = true;
     private boolean mIsAutoLink;
-
     private List<NodeView> mNodeList = new ArrayList<>();
     private NodeView currentNode;
     private float mPositionX;
     private float mPositionY;
-
     private Drawable mNodeSrc;
     private Drawable mNodeHighlightSrc;
     private Drawable mNodeCorrectSrc;
     private Drawable mNodeErrorSrc;
-
     private int mSize;
-
     private float mNodeAreaExpand;
     private int mNodeOnAnim;
     private float mLineWidth;
-
     private int mLineColor;
     private int mLineCorrectColor;
     private int mLineErrorColor;
-
     private float mNodeSize;
     // only used in Identical-Area mode, whether to keep each square
     private boolean mIsSquareArea = true;
@@ -121,18 +77,12 @@ public class PatternLockView extends ViewGroup {
     private float mSpacing;
     private float mMeasuredPadding;
     private float mMeasuredSpacing;
-
-
     private Vibrator mVibrator;
     private boolean mEnableVibrate;
     private int mVibrateTime;
-
     private boolean mIsPatternVisible = true;
-
     private Paint mPaint;
-
     private CallBack mCallBack;
-
     private OnNodeTouchListener mOnNodeTouchListener;
 
     private Runnable mFinishAction = new Runnable() {
@@ -149,9 +99,43 @@ public class PatternLockView extends ViewGroup {
      **/
     public ArrayList<Point> PointList = new ArrayList<>();
     public ArrayList<Integer> NodeList = new ArrayList<>();
+    String[] RawPatternHeader = {"number_of_activated_point", "xpoint", "ypoint", "timestamp", "pressure"};
     public ArrayList<RawPatternModelClass> RawPatternList = new ArrayList<>();
+    String[] SensorHeader = {"timestamp", "accel_x", " accel_y", "accel_z", " gyro_x", "gyro_y", ", gyro_z", " laccel_x laccel_y", "laccel_z"};
     public ArrayList<SensorDataModelClass> SensorPatternList = new ArrayList<>();
+    String[] PairHeader = {
+            "    Username",
+            "   Attempt_number",
+            "  Screen_resolution",
+            " Pattern_number_A",
+            " Pattern_number_B",
+            " Xcoord_of_central_Point_of_A",
+            " Ycoord_of_central_Point_of_A",
+            " Xcoord_of_central_Point_of_B",
+            " Ycoord_of_central_Point_of_B",
+            " First_Xcoord_of_A",
+            " First_Ycoord_of_A",
+            " Last_ Xcoord_of_B",
+            " Last_Ycoord_of_B",
+            " Distance_AB",
+            " Intertime_AB",
+            " Avg_speeadAB",
+            " Avg_pressure"};
     //public ArrayList<PairMetadataModelClass> PairMetaDataList = new ArrayList<>();
+    String[] PatternHeader = {
+            "Username",
+            " Attempt_number",
+            " Sequence",
+            " Seq_length",
+            " Time_to_complete",
+            " PatternLength",
+            " Avg_speed",
+            " Avg_pressure",
+            " Highest_pressure",
+            " Lowest_pressure",
+            " HandNum",
+            " FingerNum"
+    };
     public ArrayList<PatternMetadataModelClass> PatternMetadataList = new ArrayList<>();
     public String baseDir;
     public ArrayList<String> NodeSequenceList = new ArrayList<>();
@@ -570,6 +554,8 @@ public class PatternLockView extends ViewGroup {
                                         NodeSequence,
                                         SequenceLength,
                                         TimeToComplete,
+                                        //TODO add the patern length
+                                        //TODO add the speed
                                         (long) 0.11111,
                                         (long) 0.321,
                                         getPatternAvgPreassure(RawPatternList),
@@ -730,14 +716,41 @@ public class PatternLockView extends ViewGroup {
                     }*/
                         boolean dub = DouplicateCheck();
                         if (!dub) {
-                            if (Attempt==11 || Attempt==12) {
-                                Toast.makeText(this.getContext(), "Failed Pattern Deleting files...", Toast.LENGTH_SHORT).show();
-                             }
-                            else{
+                            if (Attempt == 11 || Attempt == 12 || Attempt == 13 || Attempt == 24 || Attempt == 25 || Attempt == 26) {
+                                Toast.makeText(this.getContext(), "Failed Pattern Deleting files...", Toast.LENGTH_LONG).show();
+                                /**TODO DELETE ALL CSV FILES IN USERS DIR from that attempt till <=13 1-10 csv else attempt >13 **/
+                            } else {
+
+                                //Setup the Header
+                                writeCSV(filePath, RawPatternHeader);
                                 for (int i = 0; i < RawPatternList.size(); i++) {
                                     writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
                                 }
+                                //Setup Header
+                                writeCSV(PatternMetadatafilePath, PatternHeader);
                                 writeCSV(PatternMetadatafilePath, patternMetadataModelClass.getPatternMetadataModelClassToStringArray());
+                                //Setup Header
+                                writeCSV(SensorfilePath, SensorHeader);
+                                for (int i = 0; i < SensorPatternList.size(); i++) {
+                                    writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
+                                }
+                                CreatePairMetadataCsv(PairNodeModelClassList);
+                            }
+                        } else {
+                            /**IF THERE IS DUPLICATE PATTERN **/
+                            if (Attempt == 11 || Attempt == 12 || Attempt == 13 || Attempt == 24 || Attempt == 25 || Attempt == 26) {
+                                Toast.makeText(this.getContext(), "Pattern Exists writing the files...", Toast.LENGTH_LONG).show();
+
+                                //Setup the Header
+                                writeCSV(filePath, RawPatternHeader);
+                                for (int i = 0; i < RawPatternList.size(); i++) {
+                                    writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
+                                }
+                                //Setup Header
+                                writeCSV(PatternMetadatafilePath, PatternHeader);
+                                writeCSV(PatternMetadatafilePath, patternMetadataModelClass.getPatternMetadataModelClassToStringArray());
+                                //Setup Header
+                                writeCSV(SensorfilePath, SensorHeader);
                                 for (int i = 0; i < SensorPatternList.size(); i++) {
                                     writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
                                 }
@@ -791,7 +804,6 @@ public class PatternLockView extends ViewGroup {
         return PressureSum / count;
     }
 
-    //TODO before saving a pattern check for duplicate
     public void CreatePairMetadataCsv(ArrayList<PairNodeModelClass> PairNodeModelClassList) {
 
 
@@ -807,6 +819,7 @@ public class PatternLockView extends ViewGroup {
         //Get Screen Resolution
         pairMetadataModelClass.setScreen_resolution(MainActivity.GetScreenResolution());
         //Getting information about Pairs in list NodeA to NodeB
+        writeCSV(PairMetadatafilePath, PairHeader);
         for (int i = 0; i < PairNodeModelClassList.size() - 1; i++) {
             //Pattern Number of NodeA and NodeB
             pairMetadataModelClass.setPattern_number_A(PairNodeModelClassList.get(i).getPattern_number_Node());
@@ -882,13 +895,6 @@ public class PatternLockView extends ViewGroup {
         }
     }
 
-    /**
-     * auto link the nodes between first and second
-     * 检测两个节点间的中间检点是否未连接，否则按顺序连接。
-     *
-     * @param first
-     * @param second
-     */
     private void autoLinkNode(NodeView first, NodeView second) {
         if (DEBUG) {
             Log.d(TAG, String.format("autoLinkNode(%s, %s)", first, second));
@@ -980,24 +986,13 @@ public class PatternLockView extends ViewGroup {
         return measureMode == MeasureSpec.EXACTLY;
     }
 
-    /**
-     * Callback to handle pattern input complete event
-     * 密码处理返回接口
-     */
+
     public interface CallBack {
-        /**
-         * @param password password
-         * @return return value 解锁结果返回值：
-         * {@link #CODE_PASSWORD_CORRECT},
-         * {@link #CODE_PASSWORD_ERROR},
-         */
+
         int onFinish(Password password);
     }
 
-    /**
-     * Callback to handle node touch event
-     * 节点点击回调监听器接口
-     */
+
     public interface OnNodeTouchListener {
         void onNodeTouched(int NodeId);
 
@@ -1122,6 +1117,7 @@ public class PatternLockView extends ViewGroup {
             passwordBuilder.append("]");
             return passwordBuilder.toString();
         }
+
     }
 
     public void writeCSV(String filePath, String[] data) {

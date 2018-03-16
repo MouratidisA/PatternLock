@@ -2,12 +2,14 @@ package icsd.patternlock;
 
 
 public class SensorDataModelClass {
+    long timestamp;
     double accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
     double gyro_x, gyro_y, gyro_z;
     double laccel_x, laccel_y, laccel_z;
 
 
-    public SensorDataModelClass(double accel_x, double accel_y, double accel_z, double gyro_x, double gyro_y, double gyro_z, double laccel_x, double laccel_y, double laccel_z) {
+    public SensorDataModelClass(long timestamp,double accel_x, double accel_y, double accel_z, double gyro_x, double gyro_y, double gyro_z, double laccel_x, double laccel_y, double laccel_z) {
+        this.timestamp = timestamp;
         this.accel_x = accel_x;
         this.accel_y = accel_y;
         this.accel_z = accel_z;
@@ -22,6 +24,7 @@ public class SensorDataModelClass {
     @Override
     public String toString() {
         return "SensorDataModelClass{" +
+                "timestamp=" + timestamp +
                 "accel_x=" + accel_x +
                 ", accel_y=" + accel_y +
                 ", accel_z=" + accel_z +
@@ -108,7 +111,7 @@ public class SensorDataModelClass {
 
     public String[] getSensorPatternObjectToStringArray() {
 
-        return new String[]{String.valueOf(accel_y), String.valueOf(accel_y), String.valueOf(accel_z),
+        return new String[]{String.valueOf(timestamp),String.valueOf(accel_y), String.valueOf(accel_y), String.valueOf(accel_z),
                 String.valueOf(gyro_x), String.valueOf(gyro_y), String.valueOf(gyro_z),
                 String.valueOf(laccel_x), String.valueOf(laccel_y), String.valueOf(laccel_z)};
 

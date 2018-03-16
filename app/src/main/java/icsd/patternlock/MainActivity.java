@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public static SensorDataModelClass GetSensors() {
-        SensorDataModelClass sensorDataModelClass = new SensorDataModelClass(accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, laccel_x, laccel_y, laccel_z);
+        SensorDataModelClass sensorDataModelClass = new SensorDataModelClass(SystemClock.elapsedRealtimeNanos(),accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, laccel_x, laccel_y, laccel_z);
         return sensorDataModelClass;
     }
 
