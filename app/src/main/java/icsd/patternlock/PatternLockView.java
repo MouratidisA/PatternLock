@@ -97,6 +97,7 @@ public class PatternLockView extends ViewGroup {
     /**
      * OUR CODE HERE!!
      **/
+    public static int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, c6 = 0, c7 = 0, c8 = 0, c9 = 0;
     public ArrayList<Point> PointList = new ArrayList<>();
     public ArrayList<Integer> NodeList = new ArrayList<>();
     String[] RawPatternHeader = {"number_of_activated_point", "xpoint", "ypoint", "timestamp", "pressure"};
@@ -141,7 +142,7 @@ public class PatternLockView extends ViewGroup {
     public ArrayList<String> NodeSequenceList = new ArrayList<>();
 
     public static int LongrunCounter = 0, ClosedCurvesCounter = 0, LongCurvesCounter = 0, LongEdgesCounter = 0, LongOrthogonalEdgesCounter = 0, ShortOrthogonalEdgesCounter = 0;
-    public static int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, c6 = 0, c7 = 0, c8 = 0, c9 = 0;
+   
     public static int Attempt = 0;
     public long TimeStart, TimeEnd, TimeToComplete;
     private int PatternNodesCounter = 0;
