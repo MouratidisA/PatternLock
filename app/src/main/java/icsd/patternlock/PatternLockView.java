@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.provider.ContactsContract;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -142,7 +143,7 @@ public class PatternLockView extends ViewGroup {
     public ArrayList<String> NodeSequenceList = new ArrayList<>();
 
     public static int LongrunCounter = 0, ClosedCurvesCounter = 0, LongCurvesCounter = 0, LongEdgesCounter = 0, LongOrthogonalEdgesCounter = 0, ShortOrthogonalEdgesCounter = 0;
-   
+
     public static int Attempt = 0;
     public long TimeStart, TimeEnd, TimeToComplete;
     private int PatternNodesCounter = 0;
@@ -715,11 +716,18 @@ public class PatternLockView extends ViewGroup {
                     for (int i = 0; i < PairMetaDataList.size(); i++) {
                         writeCSV(PairMetadatafilePath, PairMetaDataList.get(i).getPairMetadataModelClassToStringArray()) ;
                     }*/
-                        boolean dub = DouplicateCheck();
-                        if (!dub) {
+                            boolean dupCheck = DouplicateCheck();
+                        if (!dupCheck) {
                             if (Attempt == 11 || Attempt == 12 || Attempt == 13 || Attempt == 24 || Attempt == 25 || Attempt == 26) {
                                 Toast.makeText(this.getContext(), "Failed Pattern Deleting files...", Toast.LENGTH_LONG).show();
                                 /**TODO DELETE ALL CSV FILES IN USERS DIR from that attempt till <=13 1-10 csv else attempt >13 **/
+                                if (Attempt <= 13) { // if we must delete the 10 first patterns + till this attempt
+                                   Delete_Files(0, Attempt);
+                                   Attempt = 0;
+                                } else { // we must delete the second 10 patterns + till this attempt
+                                    Delete_Files(14, Attempt);
+                                    Attempt = 13;
+                                }
                             } else {
 
                                 //Setup the Header
@@ -1143,17 +1151,27 @@ public class PatternLockView extends ViewGroup {
         }
 
     }
-
+    public void  Delete_Files(int from, int till){
+        for (int i = from; i<till; i++) {
+            for (File f : (new File(baseDir)).listFiles()) {
+                if (f.getName().contains(String.valueOf(i))) {
+                    f.delete();
+                    Log.d("File names: ",f.getName());
+                }
+            }
+        }
+    }
     public boolean DouplicateCheck() {
         String temp = NodeSequenceList.get(NodeSequenceList.size() - 1);
+        boolean ret=false;
         for (int i = 0; i < NodeSequenceList.size() - 1; i++) {
             if (NodeSequenceList.get(i).toString().equals(temp)) {
                 Toast.makeText(this.getContext(), "Same Pattern detected", Toast.LENGTH_SHORT).show();
-                return true;
-            } else
-                return false;
+                ret= true;
+                break;
+            }
         }
-        return false;
+        return  ret;
     }
 
     public long GetCenterNodeX(int NodeNum) {
