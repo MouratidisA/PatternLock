@@ -142,7 +142,7 @@ public class PatternLockView extends ViewGroup {
     public String baseDir;
     public ArrayList<String> NodeSequenceList = new ArrayList<>();
 
-    public static int LongrunCounter = 0, ClosedCurvesCounter = 0, LongCurvesCounter = 0, LongEdgesCounter = 0, LongOrthogonalEdgesCounter = 0, ShortOrthogonalEdgesCounter = 0;
+    public static int ShortEdgesCounter=0, LongrunCounter = 0, ClosedCurvesCounter = 0, LongCurvesCounter = 0, LongEdgesCounter = 0, LongOrthogonalEdgesCounter = 0, ShortOrthogonalEdgesCounter = 0;
 
     public static int Attempt = 0;
     public long TimeStart, TimeEnd, TimeToComplete;
@@ -557,9 +557,7 @@ public class PatternLockView extends ViewGroup {
                                         SequenceLength,
                                         TimeToComplete,
                                         getPatternLength(),
-                                        //TODO speed returns 0
-                                        //(long)(((long)getPatternLength()/TimeToComplete),
-                                        (long)((long)0.1/100),
+                                        (double)(((double)getPatternLength()/TimeToComplete)),
                                         getPatternAvgPreassure(RawPatternList),
                                         getPatternHighestPreassure(RawPatternList),
                                         getPatternLowestPreassure(RawPatternList),
@@ -605,7 +603,7 @@ public class PatternLockView extends ViewGroup {
 
                             builder.append(s);
                         }
-                        //TODO ShortEdges
+
                         String nodesqn = builder.toString();
                         NodeSequenceList.add(nodesqn);
                         for (int i = 0; i < MainActivity.Longrun.size(); i++) {
@@ -626,6 +624,11 @@ public class PatternLockView extends ViewGroup {
                         for (int i = 0; i < MainActivity.LongEdges.size(); i++) {
                             if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.LongEdges.get(i).toString())) {
                                 LongEdgesCounter++;
+                            }
+                        }
+                        for (int i = 0; i < MainActivity.ShortEdges.size(); i++) {
+                            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.ShortEdges.get(i).toString())) {
+                                ShortEdgesCounter++;
                             }
                         }
                         for (int i = 0; i < MainActivity.LongOrthogonalEdges.size(); i++) {

@@ -285,6 +285,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="1"
+        android:textStyle="bold"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         app:layout_constraintStart_toEndOf="@+id/textView9"
         app:layout_constraintTop_toBottomOf="@+id/textView01" />

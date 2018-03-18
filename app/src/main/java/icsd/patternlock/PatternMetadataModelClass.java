@@ -17,7 +17,7 @@ public class PatternMetadataModelClass {
     /**
      * 60% of the recorded points
      **/
-    private long AvgSpeed;
+    private double AvgSpeed;
     private float AvgPressure;
     private float HighestPressure;
     private float LowestPressure;
@@ -33,7 +33,7 @@ public class PatternMetadataModelClass {
     public PatternMetadataModelClass(
             String userName, int attemtNumber, int[] sequence,
             int seqLength, long timeToComplete, long patternLength,
-            long avgSpeed, float avgPressure, float highestPressure,
+            double avgSpeed, float avgPressure, float highestPressure,
             float lowestPressure, int hnadNum, String fingerNum) {
         UserName = userName;
         AttemtNumber = attemtNumber;
@@ -105,11 +105,11 @@ public class PatternMetadataModelClass {
         PatternLength = patternLength;
     }
 
-    public long getAvgSpeed() {
+    public double getAvgSpeed() {
         return AvgSpeed;
     }
 
-    public void setAvgSpeed(long avgSpeed) {
+    public void setAvgSpeed(double avgSpeed) {
         AvgSpeed = avgSpeed;
     }
 

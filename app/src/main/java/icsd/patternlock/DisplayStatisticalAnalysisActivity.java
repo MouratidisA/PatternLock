@@ -19,9 +19,6 @@ public class DisplayStatisticalAnalysisActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_statistical_analysis);
 
-        Log.d("1",Integer.toString(PatternLockView.c1));
-        Log.d("2",Integer.toString(PatternLockView.c2));
-        Log.d("3",Integer.toString(PatternLockView.c3));
         Longrun = findViewById(R.id.LongRuns);
         Longrun.setText(Integer.toString(PatternLockView.LongrunCounter));
         ClosedCurves = findViewById(R.id.ClosedCurves);
@@ -30,9 +27,8 @@ public class DisplayStatisticalAnalysisActivity extends AppCompatActivity {
         LongCurves.setText(Integer.toString(PatternLockView.LongCurvesCounter));
         LongEdges= findViewById(R.id.LongEdges);
         LongEdges.setText(Integer.toString(PatternLockView.LongEdgesCounter));
-        //TODO fix short edges
-       /* ShortEdges=findViewById(R.id.ShortEdges);
-        ShortEdges.setText(PatternLockView.ShortEdgesCounter);*/
+        ShortEdges=findViewById(R.id.ShortEdges);
+        ShortEdges.setText(Integer.toString(PatternLockView.ShortEdgesCounter));
         LongOrthogonalEdgesr=findViewById(R.id.LongOrthogonaledges);
         LongOrthogonalEdgesr.setText(Integer.toString(PatternLockView.LongOrthogonalEdgesCounter));
         ShortOrthogonalEdges=findViewById(R.id.ShortOrthogonaledges);
