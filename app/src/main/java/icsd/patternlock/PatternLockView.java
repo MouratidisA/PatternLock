@@ -556,10 +556,10 @@ public class PatternLockView extends ViewGroup {
                                         NodeSequence,
                                         SequenceLength,
                                         TimeToComplete,
-                                        //TODO add the patern length
-                                        //TODO add the speed
-                                        (long) 0.11111,
-                                        (long) 0.321,
+                                        getPatternLength(),
+                                        //TODO speed returns 0
+                                        //(long)(((long)getPatternLength()/TimeToComplete),
+                                        (long)((long)0.1/100),
                                         getPatternAvgPreassure(RawPatternList),
                                         getPatternHighestPreassure(RawPatternList),
                                         getPatternLowestPreassure(RawPatternList),
@@ -716,14 +716,14 @@ public class PatternLockView extends ViewGroup {
                     for (int i = 0; i < PairMetaDataList.size(); i++) {
                         writeCSV(PairMetadatafilePath, PairMetaDataList.get(i).getPairMetadataModelClassToStringArray()) ;
                     }*/
-                            boolean dupCheck = DouplicateCheck();
+                        boolean dupCheck = DouplicateCheck();
                         if (!dupCheck) {
                             if (Attempt == 11 || Attempt == 12 || Attempt == 13 || Attempt == 24 || Attempt == 25 || Attempt == 26) {
                                 Toast.makeText(this.getContext(), "Failed Pattern Deleting files...", Toast.LENGTH_LONG).show();
                                 /**TODO DELETE ALL CSV FILES IN USERS DIR from that attempt till <=13 1-10 csv else attempt >13 **/
                                 if (Attempt <= 13) { // if we must delete the 10 first patterns + till this attempt
-                                   Delete_Files(0, Attempt);
-                                   Attempt = 0;
+                                    Delete_Files(0, Attempt);
+                                    Attempt = 0;
                                 } else { // we must delete the second 10 patterns + till this attempt
                                     Delete_Files(14, Attempt);
                                     Attempt = 13;
@@ -782,6 +782,43 @@ public class PatternLockView extends ViewGroup {
                 break;
         }
         return true;
+    }
+
+    public long getPatternSpeed() {
+        return (long) 0.11;
+    }
+
+    public long getPatternLength() {
+        // getting a copy from RawPatternList
+        ArrayList<RawPatternModelClass> RawPatternListForSmampling = RawPatternList;
+        //getting the First and Last Point of the list
+        RawPatternModelClass FirstPoint =RawPatternListForSmampling.get(0);
+        RawPatternModelClass LastPoint=RawPatternListForSmampling.get(RawPatternListForSmampling.size()-1);
+        //Removing the First and Last Point of the list
+        RawPatternListForSmampling.remove(0);
+        RawPatternListForSmampling.remove(RawPatternListForSmampling.size()-1);
+        /** Systematic Sampling**/
+        //geting the N for population
+        int N = RawPatternListForSmampling.size(); // count of every point record
+        //getting the Sample size
+        int SampleSize = (int) Math.round(N * 0.60); // sample should be 60% of the recorded points\
+        // calculating the step for the systematic sampling
+        int step = (int) Math.round(N / SampleSize);
+
+        //Creating a list with the points of the sample
+        ArrayList<RawPatternModelClass> SampleList = new ArrayList<>();
+        SampleList.add(FirstPoint);
+        for (int i = 0; i < RawPatternList.size(); i += step) {
+            SampleList.add(RawPatternList.get(i));
+        }
+        SampleList.add(LastPoint);
+
+        /** Getting Euclidean Distance for the sample list **/
+        long Distance = 0;
+        for (int i = 0; i < SampleList.size()-1; i++) {
+            Distance += Math.sqrt((SampleList.get(i).getY()) * (SampleList.get(i + 1).getY()) + (SampleList.get(i).getX()) * (SampleList.get(i + 1).getX()));
+        }
+        return Distance;
     }
 
     public float getPatternHighestPreassure(ArrayList<RawPatternModelClass> RawList) {
@@ -1151,27 +1188,29 @@ public class PatternLockView extends ViewGroup {
         }
 
     }
-    public void  Delete_Files(int from, int till){
-        for (int i = from; i<till; i++) {
+
+    public void Delete_Files(int from, int till) {
+        for (int i = from; i < till; i++) {
             for (File f : (new File(baseDir)).listFiles()) {
                 if (f.getName().contains(String.valueOf(i))) {
                     f.delete();
-                    Log.d("File names: ",f.getName());
+                    Log.d("File names: ", f.getName());
                 }
             }
         }
     }
+
     public boolean DouplicateCheck() {
         String temp = NodeSequenceList.get(NodeSequenceList.size() - 1);
-        boolean ret=false;
+        boolean ret = false;
         for (int i = 0; i < NodeSequenceList.size() - 1; i++) {
             if (NodeSequenceList.get(i).toString().equals(temp)) {
                 Toast.makeText(this.getContext(), "Same Pattern detected", Toast.LENGTH_SHORT).show();
-                ret= true;
+                ret = true;
                 break;
             }
         }
-        return  ret;
+        return ret;
     }
 
     public long GetCenterNodeX(int NodeNum) {
