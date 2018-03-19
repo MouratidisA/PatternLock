@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
+
 import com.opencsv.CSVWriter;
 
 import java.io.FileWriter;
@@ -31,25 +32,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static double accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
     public static double gyro_x, gyro_y, gyro_z;
     public static double laccel_x, laccel_y, laccel_z;
-    public static int screenheight,screenwidth;
+    public static int screenheight, screenwidth;
     public static ArrayList<String> Longrun = new ArrayList<>();
     public static ArrayList<String> ClosedCurves = new ArrayList<>();
     public static ArrayList<String> LongCurves = new ArrayList<>();
     public static ArrayList<String> LongEdges = new ArrayList<>();
-     public static ArrayList<String> ShortEdges = new ArrayList<>();
+    public static ArrayList<String> ShortEdges = new ArrayList<>();
     public static ArrayList<String> LongOrthogonalEdges = new ArrayList<>();
     public static ArrayList<String> ShortOrthogonalEdges = new ArrayList<>();
     public static String username;
-    public  static int  handnum;
-    public  static String fingernum;
+    public static int handnum;
+    public static String fingernum;
     private float[] gravity = new float[3];
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGyroscope;
 
 
-
-    public  EditText UserName, Info;
-    public static EditText  Attempt;
+    public EditText UserName, Info;
+    public static EditText Attempt;
     private static final String TAG = "DemoActivity";
     private PatternLockView mCurLockView;
     private PatternLockView mCircleLockView;
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Switch hand;
     private RadioGroup radioGroup;
     private RadioButton radioButton;
-    private Button submit,statisticalAnalysis;
+    private Button submit, statisticalAnalysis;
 
     public static void setAttempt(int attempts) {
         Attempt.setText(String.valueOf(attempts));
@@ -140,71 +140,70 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         LongEdges.add("78963");
         LongEdges.add("36987");
 
-        ShortEdges.add("314");
-        ShortEdges.add("413");
-        ShortEdges.add("132");
-        ShortEdges.add("231");
-        ShortEdges.add("241");
+        ShortEdges.add("451");
+        ShortEdges.add("154");
+        ShortEdges.add("542");
+        ShortEdges.add("245");
         ShortEdges.add("142");
-        ShortEdges.add("324");
-        ShortEdges.add("423");
-        ShortEdges.add("123");
-        ShortEdges.add("321");
-        ShortEdges.add("412");
-        ShortEdges.add("214");
-        ShortEdges.add("341");
-        ShortEdges.add("143");
-        ShortEdges.add("432");
-        ShortEdges.add("234");
-        ShortEdges.add("426");
-        ShortEdges.add("642");
-        ShortEdges.add("243");
-        ShortEdges.add("342");
-        ShortEdges.add("236");
-        ShortEdges.add("362");
-        ShortEdges.add("436");
-        ShortEdges.add("634");
-        ShortEdges.add("234");
-        ShortEdges.add("432");
-        ShortEdges.add("326");
-        ShortEdges.add("632");
-        ShortEdges.add("264");
-        ShortEdges.add("462");
+        ShortEdges.add("241");
+        ShortEdges.add("415");
+        ShortEdges.add("514");
+        ShortEdges.add("124");
+        ShortEdges.add("421");
+        ShortEdges.add("215");
+        ShortEdges.add("512");
+        ShortEdges.add("425");
+        ShortEdges.add("524");
+        ShortEdges.add("152");
+        ShortEdges.add("251");
+        ShortEdges.add("265");//
+        ShortEdges.add("562");
+        ShortEdges.add("356");
+        ShortEdges.add("653");
+        ShortEdges.add("253");
+        ShortEdges.add("352");
+        ShortEdges.add("526");
+        ShortEdges.add("625");
+        ShortEdges.add("235");
+        ShortEdges.add("532");
         ShortEdges.add("326");
         ShortEdges.add("623");
-        ShortEdges.add("643");
-        ShortEdges.add("738");
-        ShortEdges.add("837");
-        ShortEdges.add("374");
-        ShortEdges.add("473");
-        ShortEdges.add("384");
-        ShortEdges.add("483");
+        ShortEdges.add("635");
+        ShortEdges.add("536");
+        ShortEdges.add("263");
+        ShortEdges.add("362");
+        ShortEdges.add("487");//
+        ShortEdges.add("784");
+        ShortEdges.add("578");
+        ShortEdges.add("875");
+        ShortEdges.add("475");
+        ShortEdges.add("574");
         ShortEdges.add("748");
         ShortEdges.add("847");
-        ShortEdges.add("347");
-        ShortEdges.add("743");
-        ShortEdges.add("438");
-        ShortEdges.add("834");
-        ShortEdges.add("783");
-        ShortEdges.add("387");
-        ShortEdges.add("874");
-        ShortEdges.add("478");
-        ShortEdges.add("849");
-        ShortEdges.add("948");
-        ShortEdges.add("486");
-        ShortEdges.add("684");
-        ShortEdges.add("496");
-        ShortEdges.add("694");
+        ShortEdges.add("457");
+        ShortEdges.add("754");
+        ShortEdges.add("548");
+        ShortEdges.add("845");
+        ShortEdges.add("758");
+        ShortEdges.add("857");
+        ShortEdges.add("485");
+        ShortEdges.add("584");
+        ShortEdges.add("598");//
+        ShortEdges.add("895");
+        ShortEdges.add("689");
+        ShortEdges.add("986");
+        ShortEdges.add("586");
+        ShortEdges.add("685");
+        ShortEdges.add("859");
+        ShortEdges.add("958");
+        ShortEdges.add("568");
+        ShortEdges.add("865");
+        ShortEdges.add("659");
+        ShortEdges.add("956");
         ShortEdges.add("869");
         ShortEdges.add("968");
-        ShortEdges.add("468");
-        ShortEdges.add("864");
-        ShortEdges.add("649");
-        ShortEdges.add("946");
-        ShortEdges.add("894");
-        ShortEdges.add("498");
-        ShortEdges.add("986");
-        ShortEdges.add("689");
+        ShortEdges.add("596");
+        ShortEdges.add("695");
 
 
         LongOrthogonalEdges.add("14789");
@@ -250,16 +249,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ShortOrthogonalEdges.add("896");
 
 
-
-
-
-
-        UserName =(EditText) findViewById(R.id.UserName);
+        UserName = (EditText) findViewById(R.id.UserName);
 
         Attempt = findViewById(R.id.Attempt);
         hand = findViewById(R.id.hand);
         radioGroup = (RadioGroup) findViewById(R.id.finger);
-        statisticalAnalysis= findViewById(R.id.StatisticalAnalysis);
+        statisticalAnalysis = findViewById(R.id.StatisticalAnalysis);
         statisticalAnalysis.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -267,32 +262,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 MainActivity.this.startActivity(myIntent);
             }
         });
-        submit=findViewById(R.id.submit);
+        submit = findViewById(R.id.submit);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String selection=null;
+                String selection = null;
                 if (!hand.isChecked()) {
                     handnum = 1;
-                    Log.d("handnum",Integer.toString(handnum));
+                    Log.d("handnum", Integer.toString(handnum));
 
                 } else {
                     handnum = 2;
-                    Log.d("handnum",Integer.toString(handnum));
+                    Log.d("handnum", Integer.toString(handnum));
                 }
-              username= UserName.getText().toString();
-                if(radioGroup.getCheckedRadioButtonId()!=-1){
-                    int id= radioGroup.getCheckedRadioButtonId();
+                username = UserName.getText().toString();
+                if (radioGroup.getCheckedRadioButtonId() != -1) {
+                    int id = radioGroup.getCheckedRadioButtonId();
                     View radioButton = radioGroup.findViewById(id);
                     int radioId = radioGroup.indexOfChild(radioButton);
                     RadioButton btn = (RadioButton) radioGroup.getChildAt(radioId);
                     selection = (String) btn.getText();
-                    fingernum=selection;
+                    fingernum = selection;
                 }
-                int checkedRadioButton=radioGroup.getCheckedRadioButtonId();
+                int checkedRadioButton = radioGroup.getCheckedRadioButtonId();
                 radioButton = findViewById(checkedRadioButton);
 
-                Log.d("fingernum"," Finger= "+selection+" Username = : "+username+" HandNumber = : "+handnum);
+                Log.d("fingernum", " Finger= " + selection + " Username = : " + username + " HandNumber = : " + handnum);
             }
 
         });
@@ -310,8 +305,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-         screenheight= metrics.heightPixels;
-         screenwidth = metrics.widthPixels;
+        screenheight = metrics.heightPixels;
+        screenwidth = metrics.widthPixels;
 
     }
 
@@ -408,20 +403,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public static SensorDataModelClass GetSensors() {
-        SensorDataModelClass sensorDataModelClass = new SensorDataModelClass(SystemClock.elapsedRealtimeNanos(),accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, laccel_x, laccel_y, laccel_z);
+        SensorDataModelClass sensorDataModelClass = new SensorDataModelClass(SystemClock.elapsedRealtimeNanos(), accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, laccel_x, laccel_y, laccel_z);
         return sensorDataModelClass;
     }
 
-    public static String GetUsername (){
+    public static String GetUsername() {
         return username;
     }
-    public static int GetHandNumber (){
+
+    public static int GetHandNumber() {
         return handnum;
     }
-    public static String GetFingerNumber (){
+
+    public static String GetFingerNumber() {
         return fingernum;
     }
-    public static String GetScreenResolution (){return Integer.toString(screenheight)+"x"+Integer.toString(screenwidth) ;}
+
+    public static String GetScreenResolution() {
+        return Integer.toString(screenheight) + "x" + Integer.toString(screenwidth);
+    }
 
 
 }
