@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.opencsv.CSVWriter;
 
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static ArrayList<String> ShortEdges = new ArrayList<>();
     public static ArrayList<String> LongOrthogonalEdges = new ArrayList<>();
     public static ArrayList<String> ShortOrthogonalEdges = new ArrayList<>();
+    public static ArrayList<String> CommonPatterns=new ArrayList<>();
     public static String username;
     public static int handnum;
     public static String fingernum;
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     public EditText UserName, Info;
-    public static EditText Attempt;
+    public static TextView Attempt;
     private static final String TAG = "DemoActivity";
     private PatternLockView mCurLockView;
     private PatternLockView mCircleLockView;
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         Longrun.add("123");
         Longrun.add("321");
@@ -248,9 +251,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ShortOrthogonalEdges.add("698");
         ShortOrthogonalEdges.add("896");
 
+        CommonPatterns.add("12369");
+        CommonPatterns.add("1236");
+        CommonPatterns.add("14789");
+        CommonPatterns.add("5789");
+        CommonPatterns.add("2369");
+        CommonPatterns.add("4789");
+        CommonPatterns.add("2486");
+        CommonPatterns.add("35789");
+        CommonPatterns.add("1478");
+        CommonPatterns.add("2589");
+
+
+
+
 
         UserName = (EditText) findViewById(R.id.UserName);
-
         Attempt = findViewById(R.id.Attempt);
         hand = findViewById(R.id.hand);
         radioGroup = (RadioGroup) findViewById(R.id.finger);

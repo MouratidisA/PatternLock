@@ -3,7 +3,9 @@ package icsd.patternlock;
 import icsd.patternlock.MainActivity.*;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -98,9 +100,11 @@ public class PatternLockView extends ViewGroup {
     /**
      * OUR CODE HERE!!
      **/
-    public static int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, c6 = 0, c7 = 0, c8 = 0, c9 = 0;
     public ArrayList<Point> PointList = new ArrayList<>();
     public ArrayList<Integer> NodeList = new ArrayList<>();
+    /**
+     * CSV FILES
+     **/
     String[] RawPatternHeader = {"number_of_activated_point", "xpoint", "ypoint", "timestamp", "pressure"};
     public ArrayList<RawPatternModelClass> RawPatternList = new ArrayList<>();
     String[] SensorHeader = {"timestamp", "accel_x", " accel_y", "accel_z", " gyro_x", "gyro_y", ", gyro_z", " laccel_x laccel_y", "laccel_z"};
@@ -123,7 +127,7 @@ public class PatternLockView extends ViewGroup {
             " Intertime_AB",
             " Avg_speeadAB",
             " Avg_pressure"};
-    //public ArrayList<PairMetadataModelClass> PairMetaDataList = new ArrayList<>();
+
     String[] PatternHeader = {
             "Username",
             " Attempt_number",
@@ -139,14 +143,44 @@ public class PatternLockView extends ViewGroup {
             " FingerNum"
     };
     public ArrayList<PatternMetadataModelClass> PatternMetadataList = new ArrayList<>();
+    /**
+     * Users Folder
+     **/
     public String baseDir;
-    public ArrayList<String> NodeSequenceList = new ArrayList<>();
+    public ArrayList<String> NodeSequenceList = new ArrayList<>(); // Users Pattern
+    public static int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, c6 = 0, c7 = 0, c8 = 0, c9 = 0; // counters for every node
+    // counters for the pattern statistics
+    public static int ShortEdgesCounter = 0, LongrunCounter = 0, ClosedCurvesCounter = 0, LongCurvesCounter = 0, LongEdgesCounter = 0, LongOrthogonalEdgesCounter = 0, ShortOrthogonalEdgesCounter = 0;
+    public static int Attempt = 0; // attempt of the user (attempt is refreshed after the users enters the pattern)
+    public  static int  rank;
+    public long TimeStart, TimeEnd, TimeToComplete; // time manage variables
+    private int PatternNodesCounter = 0; // amount of nodes in users pattern (we need at least 4 nodes to proceed )
+    public String nodesqn;
 
-    public static int ShortEdgesCounter=0, LongrunCounter = 0, ClosedCurvesCounter = 0, LongCurvesCounter = 0, LongEdgesCounter = 0, LongOrthogonalEdgesCounter = 0, ShortOrthogonalEdgesCounter = 0;
-
-    public static int Attempt = 0;
-    public long TimeStart, TimeEnd, TimeToComplete;
-    private int PatternNodesCounter = 0;
+    /**
+     * Setting up Folder for every User
+     **/
+    File userFolder;
+    /**
+     * Preparing PatternMetadata file
+     **/
+    String PatternMetadatafileName;
+    String PatternMetadatafilePath;
+    /**
+     * Preparing RawPattern file
+     **/
+    String RawPatternfileName;
+    String RawPatternfilePath;
+    /**
+     * Preparing Sensor file
+     **/
+    String SensorfileName;
+    String SensorfilePath;
+    /**
+     * Preparing PairMetadata file
+     */
+    ArrayList<PairNodeModelClass> PairNodeModelClassList;
+    PatternMetadataModelClass patternMetadataModelClass;
 
 
     public PatternLockView(Context context) {
@@ -458,7 +492,6 @@ public class PatternLockView extends ViewGroup {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-
         Log.d("Touch Point (x,y)", String.valueOf(event.getRawX()) + "---" + String.valueOf(event.getRawY()));
         PointList.add(new Point(event.getRawX(), event.getRawY(), event.getPressure()));
 
@@ -467,24 +500,26 @@ public class PatternLockView extends ViewGroup {
         }
 
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN: // when user starts the pattern
+                /**Start time of Pattern**/
+                TimeStart = SystemClock.elapsedRealtimeNanos();
                 if (mIsFinishInterruptable && mFinishAction != null) {
                     removeCallbacks(mFinishAction);
                     mFinishAction.run();
                 }
-            case MotionEvent.ACTION_MOVE:
+            case MotionEvent.ACTION_MOVE: // when users is in progress of the pattern
                 mPositionX = event.getX();
                 mPositionY = event.getY();
                 /**Start time of Pattern**/
-                TimeStart = SystemClock.elapsedRealtimeNanos();
-
+                // TimeStart = SystemClock.elapsedRealtimeNanos();
+                //TODO check the timestamp the comment is the old location
                 NodeView nodeAt = getNodeAt(mPositionX, mPositionY);
 
                 if (currentNode == null) {
                     if (nodeAt != null) {
                         Log.d("FirstPatternNodeTouched", "nodeAt-->" + nodeAt.getNodeId());
-                        NodeList.add(nodeAt.getNodeId() + 1);
-                        PatternNodesCounter++;
+                        NodeList.add(nodeAt.getNodeId() + 1); // adding the node to the NodeList
+                        PatternNodesCounter++; // update PatternNodesCounter
 
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
@@ -494,8 +529,8 @@ public class PatternLockView extends ViewGroup {
                 } else {
                     if (nodeAt != null && !nodeAt.isHighLighted()) {
                         Log.d("NextPatternNodeTouched", "nodeAt-->" + nodeAt.getNodeId());
-                        NodeList.add(nodeAt.getNodeId() + 1);
-                        PatternNodesCounter++;
+                        NodeList.add(nodeAt.getNodeId() + 1);// adding the node to the NodeList
+                        PatternNodesCounter++;// update PatternNodesCounter
                         if (mIsAutoLink) {
                             autoLinkNode(currentNode, nodeAt);
                         }
@@ -512,7 +547,7 @@ public class PatternLockView extends ViewGroup {
                 }
 
                 break;
-            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_UP: // when user finishes the pattern
                 if (mNodeList.size() > 0) {
 
                     if (!mIsFinishInterruptable) {
@@ -528,28 +563,27 @@ public class PatternLockView extends ViewGroup {
                     invalidate();
                     postDelayed(mFinishAction, mFinishTimeout);
 
-                    /****/
+                    /**If pattern has at least 4 nodes in it **/
                     if (PatternNodesCounter >= 4) {
-                        Attempt++;
+                        Attempt++; // valid pattern so we update Attempt of the user
                         /**End time of Pattern**/
                         TimeEnd = SystemClock.elapsedRealtimeNanos();
                         TimeToComplete = TimeEnd - TimeStart;
-                        // NodeSequence from NodeList without duplicates for PatternMetadataModeClass
+                        /**Extracting NodeSequence through removing duplicates from NodeList**/
                         Set<Integer> hs = new LinkedHashSet<>(NodeList);
                         hs.addAll(NodeList);
                         ArrayList<Integer> tempList = new ArrayList<>();
                         tempList.addAll(hs);
                         int[] NodeSequence = new int[hs.size()];
-                        /**PRINTING THE HASHSET sequence without duplicates**/
+                        /**Adding the NodeSequence  **/
                         for (int i = 0; i < hs.size(); i++) {
                             NodeSequence[i] = tempList.get(i);
-                            Log.d("AIAIAIAIAIIAIA", String.valueOf(NodeSequence[i]));
+                            Log.d("NodeSequence Item-->", String.valueOf(NodeSequence[i]));
                         }
                         /**Pattern Metadata File**/
                         int SequenceLength = NodeSequence.length;
                         username = MainActivity.GetUsername();
-                        Log.d("oooooooooooooo", "nodeAt-->" + RawPatternList.toString());
-                        PatternMetadataModelClass patternMetadataModelClass = new PatternMetadataModelClass
+                        patternMetadataModelClass = new PatternMetadataModelClass
                                 (
                                         username,
                                         Attempt,
@@ -557,7 +591,7 @@ public class PatternLockView extends ViewGroup {
                                         SequenceLength,
                                         TimeToComplete,
                                         getPatternLength(),
-                                        (double)(((double)getPatternLength()/TimeToComplete)),
+                                        (double) (((double) getPatternLength() / TimeToComplete)),
                                         getPatternAvgPreassure(RawPatternList),
                                         getPatternHighestPreassure(RawPatternList),
                                         getPatternLowestPreassure(RawPatternList),
@@ -565,115 +599,27 @@ public class PatternLockView extends ViewGroup {
                                         MainActivity.GetFingerNumber()
                                 );
                         PatternMetadataList.add(patternMetadataModelClass);
-                        /**GET the node sequence and convert it from
-                         * string array to string
-                         * compare it with the Statisctical analysis list
-                         */
-
-                        //https://stackoverflow.com/a/5900209/5471823
-                        StringBuilder builder = new StringBuilder();
-                        for (int s : NodeSequence) {
-                            if (s == 1) {
-                                c1++;
-                            }
-                            if (s == 2) {
-                                c2++;
-                            }
-                            if (s == 3) {
-                                c3++;
-                            }
-                            if (s == 4) {
-                                c4++;
-                            }
-                            if (s == 5) {
-                                c5++;
-                            }
-                            if (s == 6) {
-                                c6++;
-                            }
-                            if (s == 7) {
-                                c7++;
-                            }
-                            if (s == 8) {
-                                c8++;
-                            }
-                            if (s == 9) {
-                                c9++;
-                            }
-
-                            builder.append(s);
-                        }
-
-                        String nodesqn = builder.toString();
-                        NodeSequenceList.add(nodesqn);
-                        for (int i = 0; i < MainActivity.Longrun.size(); i++) {
-                            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.Longrun.get(i).toString())) {
-                                LongrunCounter++;
-                            }
-                        }
-                        for (int i = 0; i < MainActivity.ClosedCurves.size(); i++) {
-                            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.ClosedCurves.get(i).toString())) {
-                                ClosedCurvesCounter++;
-                            }
-                        }
-                        for (int i = 0; i < MainActivity.LongCurves.size(); i++) {
-                            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.LongCurves.get(i).toString())) {
-                                LongCurvesCounter++;
-                            }
-                        }
-                        for (int i = 0; i < MainActivity.LongEdges.size(); i++) {
-                            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.LongEdges.get(i).toString())) {
-                                LongEdgesCounter++;
-                            }
-                        }
-                        for (int i = 0; i < MainActivity.ShortEdges.size(); i++) {
-                            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.ShortEdges.get(i).toString())) {
-                                ShortEdgesCounter++;
-                            }
-                        }
-                        for (int i = 0; i < MainActivity.LongOrthogonalEdges.size(); i++) {
-                            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.LongOrthogonalEdges.get(i).toString())) {
-                                LongOrthogonalEdgesCounter++;
-                            }
-                        }
-                        for (int i = 0; i < MainActivity.ShortOrthogonalEdges.size(); i++) {
-                            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.ShortOrthogonalEdges.get(i).toString())) {
-                                ShortOrthogonalEdgesCounter++;
-                            }
-                        }
-
-
+                        getStatistics(NodeSequence); // load info for statistics ( logn edges,short edges etc)
                         /**Setting up Folder for every User**/
-                        File userFolder = new File(android.os.Environment.getExternalStorageDirectory() + File.separator + username);
-                        userFolder.mkdirs();
+                        userFolder = new File(android.os.Environment.getExternalStorageDirectory() + File.separator + username);
+                        userFolder.mkdirs(); // creating users directory
                         baseDir = userFolder.getAbsolutePath();
-                        /** Writing PatternMetadata to CSV file**/
+                        /** Preparing PatternMetadata file**/
+                        PatternMetadatafileName = username + "_" + Attempt + "_" + "PatternMetadata.csv";
+                        PatternMetadatafilePath = baseDir + File.separator + PatternMetadatafileName;
 
-                        String PatternMetadatafileName = username + "_" + Attempt + "_" + "PatternMetadata.csv";
-                        String PatternMetadatafilePath = baseDir + File.separator + PatternMetadatafileName;
-                        //writeCSV(PatternMetadatafilePath, patternMetadataModelClass.getPatternMetadataModelClassToStringArray());
+                        /** Preparing RawPattern file **/
+                        RawPatternfileName = username + "_" + Attempt + "_" + "raw.csv";
+                        RawPatternfilePath = baseDir + File.separator + RawPatternfileName;
 
-                        /**RawPattern file **/
-                        /**Get users name as filename **/
-                        String fileName = username + "_" + Attempt + "_" + "raw.csv";
-                        String filePath = baseDir + File.separator + fileName;
-                        /** Writing Raw Pattern data to CSV file**/
-                       /* for (int i = 0; i < RawPatternList.size(); i++) {
-                            writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
-                        }*/
-                        /**Sensor file**/
-                        /**Writing Sensor data to CSV file**/
-                        String SensorfileName = username + "_" + Attempt + "_" + "sensors.csv";
-                        String SensorfilePath = baseDir + File.separator + SensorfileName;
-                       /* for (int i = 0; i < SensorPatternList.size(); i++) {
-                            writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
-                        }*/
+                        /**Preparing Sensor file**/
+                        SensorfileName = username + "_" + Attempt + "_" + "sensors.csv";
+                        SensorfilePath = baseDir + File.separator + SensorfileName;
 
-                         /* PairNode Data for PairNodeModelClass!*/
-                        ArrayList<PairNodeModelClass> PairNodeModelClassList = new ArrayList<>();
+                        /** Preparing PairMetadata file*/
+                        PairNodeModelClassList = new ArrayList<>();
                         RawPatternModelClass first_record_of_a_node = null, last_record_of_a_node = null;
-
-
+                        // In every RawPattern record (item of the ArrayList)
                         for (int i = 0; i < RawPatternList.size(); i++) {
                             first_record_of_a_node = RawPatternList.get(i); // The first record of a Node
                             //searching till the last record of the node
@@ -695,10 +641,11 @@ public class PatternLockView extends ViewGroup {
                                     j++;
                                 }
                             }
-                            /**Adding The first and the last record of the Node to a PairNodeModelClass**/
+                            /**Adding The first and the last record of the Node to a PairNodeModelClass and then to PairNodeModelClassList**/
                             PairNodeModelClassList.add(
                                     new PairNodeModelClass(
                                             first_record_of_a_node.getNumber_of_activated_point(),
+                                            //TODO add the real central x/y for the node
                                             GetCenterNodeX(first_record_of_a_node.getNumber_of_activated_point()),
                                             GetCenterNodeY(first_record_of_a_node.getNumber_of_activated_point()),
                                             first_record_of_a_node.getX(),
@@ -711,19 +658,20 @@ public class PatternLockView extends ViewGroup {
 
 
                         }
-                        /** Here we will take the list with PairNodeModeClass items to create the PairMetadata file **/
-                        //CreatePairMetadataCsv(PairNodeModelClassList);
-                        /**Writing PairMetadata to CSV file**//*
-                    String PairMetadatafileName = "PairMetadatafile.csv";
-                    String PairMetadatafilePath = baseDir + File.separator + PairMetadatafileName;
-                    for (int i = 0; i < PairMetaDataList.size(); i++) {
-                        writeCSV(PairMetadatafilePath, PairMetaDataList.get(i).getPairMetadataModelClassToStringArray()) ;
-                    }*/
+                        /** Checking fo duplicate patterns when user adds next pattern */
                         boolean dupCheck = DouplicateCheck();
+                        if (Attempt == 10 || Attempt == 11 || Attempt == 12 || Attempt == 23 || Attempt == 24 || Attempt == 25) {
+                            confirmDialog("Please enter valid Pattern");
+                        } else if (Attempt == 13) {
+                            confirmDialog("Please re-enter one of the last 10 patterns");
+                        } else if (Attempt == 26) {
+                            confirmDialog("FINISHED!!!!!!!!! _|_");
+                        }
+                        //if the is no duplicate between patterns
                         if (!dupCheck) {
+
                             if (Attempt == 11 || Attempt == 12 || Attempt == 13 || Attempt == 24 || Attempt == 25 || Attempt == 26) {
                                 Toast.makeText(this.getContext(), "Failed Pattern Deleting files...", Toast.LENGTH_LONG).show();
-                                /**TODO DELETE ALL CSV FILES IN USERS DIR from that attempt till <=13 1-10 csv else attempt >13 **/
                                 if (Attempt <= 13) { // if we must delete the 10 first patterns + till this attempt
                                     Delete_Files(0, Attempt);
                                     Attempt = 0;
@@ -732,51 +680,23 @@ public class PatternLockView extends ViewGroup {
                                     Attempt = 13;
                                 }
                             } else {
-
-                                //Setup the Header
-                                writeCSV(filePath, RawPatternHeader);
-                                for (int i = 0; i < RawPatternList.size(); i++) {
-                                    writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
-                                }
-                                //Setup Header
-                                writeCSV(PatternMetadatafilePath, PatternHeader);
-                                writeCSV(PatternMetadatafilePath, patternMetadataModelClass.getPatternMetadataModelClassToStringArray());
-                                //Setup Header
-                                writeCSV(SensorfilePath, SensorHeader);
-                                for (int i = 0; i < SensorPatternList.size(); i++) {
-                                    writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
-                                }
-                                CreatePairMetadataCsv(PairNodeModelClassList);
+                                writeFilesToDeviceStorage();
                             }
                         } else {
                             /**IF THERE IS DUPLICATE PATTERN **/
                             if (Attempt == 11 || Attempt == 12 || Attempt == 13 || Attempt == 24 || Attempt == 25 || Attempt == 26) {
                                 Toast.makeText(this.getContext(), "Pattern Exists writing the files...", Toast.LENGTH_LONG).show();
-
-                                //Setup the Header
-                                writeCSV(filePath, RawPatternHeader);
-                                for (int i = 0; i < RawPatternList.size(); i++) {
-                                    writeCSV(filePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
-                                }
-                                //Setup Header
-                                writeCSV(PatternMetadatafilePath, PatternHeader);
-                                writeCSV(PatternMetadatafilePath, patternMetadataModelClass.getPatternMetadataModelClassToStringArray());
-                                //Setup Header
-                                writeCSV(SensorfilePath, SensorHeader);
-                                for (int i = 0; i < SensorPatternList.size(); i++) {
-                                    writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
-                                }
-                                CreatePairMetadataCsv(PairNodeModelClassList);
+                                writeFilesToDeviceStorage();
                             }
                         }
+                        PatternNodesCounter = 0;// pattern nodes for the next pattern must be zero after a pattern is finished
                     } else {
                         // At least 4 nodes in a Pattern
                         PatternNodesCounter = 0;
                         Toast.makeText(this.getContext(), "Small Pattern", Toast.LENGTH_SHORT).show();
                     }
-
+                    PatternRank();
                     /**CLEANING the lists for next Pattern**/
-                    /**Molis teleiwsoun ta 26 attempts tha prepei na midenizete to Attempt kai na adeiazoun ta stoixeia tou xrisi**/
                     MainActivity.setAttempt(Attempt);
                     SensorPatternList.clear();
                     RawPatternList.clear();
@@ -787,19 +707,114 @@ public class PatternLockView extends ViewGroup {
         return true;
     }
 
-    public long getPatternSpeed() {
-        return (long) 0.11;
+    public void writeFilesToDeviceStorage() {
+        //Setup the Header of the file
+        writeCSV(RawPatternfilePath, RawPatternHeader);
+        for (int i = 0; i < RawPatternList.size(); i++) {
+            writeCSV(RawPatternfilePath, RawPatternList.get(i).getRawPatternObjectToStringArray());
+        }
+        //Setup Header of the file
+        writeCSV(PatternMetadatafilePath, PatternHeader);
+        writeCSV(PatternMetadatafilePath, patternMetadataModelClass.getPatternMetadataModelClassToStringArray());
+        //Setup Header of the file
+        writeCSV(SensorfilePath, SensorHeader);
+        for (int i = 0; i < SensorPatternList.size(); i++) {
+            writeCSV(SensorfilePath, SensorPatternList.get(i).getSensorPatternObjectToStringArray());
+        }
+        CreatePairMetadataCsv(PairNodeModelClassList);
     }
+
+    public void getStatistics(int[] NodeSequence) {
+        /**GET the node sequence and convert it from
+         * string array to string
+         * compare it with the Statisctical analysis list
+         */
+
+        //https://stackoverflow.com/a/5900209/5471823
+        StringBuilder builder = new StringBuilder();
+        for (int s : NodeSequence) {
+            if (s == 1) {
+                c1++;
+            }
+            if (s == 2) {
+                c2++;
+            }
+            if (s == 3) {
+                c3++;
+            }
+            if (s == 4) {
+                c4++;
+            }
+            if (s == 5) {
+                c5++;
+            }
+            if (s == 6) {
+                c6++;
+            }
+            if (s == 7) {
+                c7++;
+            }
+            if (s == 8) {
+                c8++;
+            }
+            if (s == 9) {
+                c9++;
+            }
+
+            builder.append(s);
+        }
+
+        nodesqn = builder.toString();
+        NodeSequenceList.add(nodesqn);
+        for (int i = 0; i < MainActivity.Longrun.size(); i++) {
+            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.Longrun.get(i).toString())) {
+                LongrunCounter++;
+            }
+        }
+        for (int i = 0; i < MainActivity.ClosedCurves.size(); i++) {
+            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.ClosedCurves.get(i).toString())) {
+                ClosedCurvesCounter++;
+            }
+        }
+        for (int i = 0; i < MainActivity.LongCurves.size(); i++) {
+            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.LongCurves.get(i).toString())) {
+                LongCurvesCounter++;
+            }
+        }
+        for (int i = 0; i < MainActivity.LongEdges.size(); i++) {
+            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.LongEdges.get(i).toString())) {
+                LongEdgesCounter++;
+            }
+        }
+        for (int i = 0; i < MainActivity.ShortEdges.size(); i++) {
+            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.ShortEdges.get(i).toString())) {
+                ShortEdgesCounter++;
+            }
+        }
+        for (int i = 0; i < MainActivity.LongOrthogonalEdges.size(); i++) {
+            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.LongOrthogonalEdges.get(i).toString())) {
+                LongOrthogonalEdgesCounter++;
+            }
+        }
+        for (int i = 0; i < MainActivity.ShortOrthogonalEdges.size(); i++) {
+            if (StringUtils.containsIgnoreCase(nodesqn, MainActivity.ShortOrthogonalEdges.get(i).toString())) {
+                ShortOrthogonalEdgesCounter++;
+            }
+        }
+
+
+    }
+
 
     public long getPatternLength() {
         // getting a copy from RawPatternList
         ArrayList<RawPatternModelClass> RawPatternListForSmampling = RawPatternList;
         //getting the First and Last Point of the list
-        RawPatternModelClass FirstPoint =RawPatternListForSmampling.get(0);
-        RawPatternModelClass LastPoint=RawPatternListForSmampling.get(RawPatternListForSmampling.size()-1);
+        RawPatternModelClass FirstPoint = RawPatternListForSmampling.get(0);
+        RawPatternModelClass LastPoint = RawPatternListForSmampling.get(RawPatternListForSmampling.size() - 1);
         //Removing the First and Last Point of the list
         RawPatternListForSmampling.remove(0);
-        RawPatternListForSmampling.remove(RawPatternListForSmampling.size()-1);
+        RawPatternListForSmampling.remove(RawPatternListForSmampling.size() - 1);
         /** Systematic Sampling**/
         //geting the N for population
         int N = RawPatternListForSmampling.size(); // count of every point record
@@ -818,7 +833,7 @@ public class PatternLockView extends ViewGroup {
 
         /** Getting Euclidean Distance for the sample list **/
         long Distance = 0;
-        for (int i = 0; i < SampleList.size()-1; i++) {
+        for (int i = 0; i < SampleList.size() - 1; i++) {
             Distance += Math.sqrt((SampleList.get(i).getY()) * (SampleList.get(i + 1).getY()) + (SampleList.get(i).getX()) * (SampleList.get(i + 1).getX()));
         }
         return Distance;
@@ -854,11 +869,8 @@ public class PatternLockView extends ViewGroup {
     }
 
     public void CreatePairMetadataCsv(ArrayList<PairNodeModelClass> PairNodeModelClassList) {
-
-
         String PairMetadatafileName = username + "_" + Attempt + "_" + "PairMetadatafile.csv";
         String PairMetadatafilePath = baseDir + File.separator + PairMetadatafileName;
-
 
         PairMetadataModelClass pairMetadataModelClass = new PairMetadataModelClass();
         //UserName
@@ -873,6 +885,7 @@ public class PatternLockView extends ViewGroup {
             //Pattern Number of NodeA and NodeB
             pairMetadataModelClass.setPattern_number_A(PairNodeModelClassList.get(i).getPattern_number_Node());
             pairMetadataModelClass.setPattern_number_B(PairNodeModelClassList.get(i + 1).getPattern_number_Node());
+            //TODO get the central x/y for node
             //Central Point for Node A
             pairMetadataModelClass.setXcoord_of_central_Point_of_A(PairNodeModelClassList.get(i).getXcoord_of_central_Point_of_Node());
             pairMetadataModelClass.setYcoord_of_central_Point_of_A(PairNodeModelClassList.get(i).getYcoord_of_central_Point_of_Node());
@@ -895,14 +908,113 @@ public class PatternLockView extends ViewGroup {
 
             long intertime = PairNodeModelClassList.get(i + 1).getLastTimestamp() - PairNodeModelClassList.get(i).getFirstTimestamp();
             pairMetadataModelClass.setIntertime_AB(intertime);
-
             pairMetadataModelClass.setAvg_speeadAB((long) distance / intertime);
-
-
             pairMetadataModelClass.setAvg_pressure((long) (PairNodeModelClassList.get(i).getNodePressure() + PairNodeModelClassList.get(i + 1).getNodePressure()) / (PairNodeModelClassList.get(i).getTouchPointsCount() + PairNodeModelClassList.get(i + 1).getTouchPointsCount()));
             /**Writing PairMetadata row to CSV file**/
             writeCSV(PairMetadatafilePath, pairMetadataModelClass.getPairMetadataModelClassToStringArray());
         }
+
+    }
+
+    public void writeCSV(String filePath, String[] data) {
+        //https://stackoverflow.com/questions/17645092/export-my-data-on-csv-file-from-app-android
+        CSVWriter writer = null;
+        try {
+            File f = new File(Environment.getExternalStorageDirectory(), filePath);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
+            writer = new CSVWriter(new FileWriter(filePath, true), ';');
+            writer.writeNext(data);
+            writer.flush();
+            writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
+    public void Delete_Files(int from, int till) {
+        for (int i = from; i < till; i++) {
+            for (File f : (new File(baseDir)).listFiles()) {
+                if (f.getName().contains(String.valueOf(i))) {
+                    f.delete();
+                    Log.d("File names: ", f.getName());
+                }
+            }
+        }
+    }
+
+    public boolean DouplicateCheck() {
+        String temp = NodeSequenceList.get(NodeSequenceList.size() - 1);
+        boolean ret = false;
+        for (int i = 0; i < NodeSequenceList.size() - 1; i++) {
+            if (NodeSequenceList.get(i).toString().equals(temp)) {
+                Toast.makeText(this.getContext(), "Same Pattern detected", Toast.LENGTH_SHORT).show();
+                ret = true;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    public long GetCenterNodeX(int NodeNum) {
+        return (long) 0.001;
+    }
+
+    public long GetCenterNodeY(int NodeNum) {
+        return (long) 0.002;
+    }
+
+    private void confirmDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
+
+        builder
+                .setMessage(message)
+                .show();
+    }
+
+    public  void  PatternRank() {
+        //TODO  Non-Repeated segments 
+        rank = 0;
+        //Left/Right Hand
+        if (MainActivity.fingernum.equals("1") && MainActivity.handnum == 1) {
+            if (nodesqn.contains("4") && nodesqn.contains("5") && nodesqn.contains("7") && nodesqn.contains("8")) {
+                rank += 10;
+            }
+        } else if (MainActivity.fingernum.equals("1") && MainActivity.handnum == 2) {
+            if (nodesqn.contains("5") && nodesqn.contains("6") && nodesqn.contains("8") && nodesqn.contains("9")) {
+                rank += 10;
+            }
+        }
+
+        //Length
+        if(nodesqn.length()==4){
+            rank+=5;
+        }
+        if(nodesqn.length()==5){
+            rank+=10;
+        }
+        if(nodesqn.length()==6){
+            rank+=15;
+        }
+        if(nodesqn.length()==7){
+            rank+=20;
+        }
+        if(nodesqn.length()==8){
+            rank+=25;
+        }
+        if(nodesqn.length()==9){
+            rank+=35;
+        }
+        //CommonPatterns
+        if (MainActivity.CommonPatterns.contains(nodesqn)) ;
+        {
+            rank += -30;
+        }
+        Toast.makeText(this.getContext(), "Your Rank is: " +Integer.toString(rank), Toast.LENGTH_SHORT).show();
 
     }
 
@@ -1104,6 +1216,8 @@ public class PatternLockView extends ViewGroup {
             mState = state;
         }
 
+
+
         public int getCenterX() {
             return (getLeft() + getRight()) / 2;
         }
@@ -1169,59 +1283,5 @@ public class PatternLockView extends ViewGroup {
 
     }
 
-    public void writeCSV(String filePath, String[] data) {
-        //https://stackoverflow.com/questions/17645092/export-my-data-on-csv-file-from-app-android
-        /* String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-        String fileName = "AnalysisData.csv";
-        String filePath = baseDir + File.separator + fileName;*/
-        CSVWriter writer = null;
-        try {
-            File f = new File(Environment.getExternalStorageDirectory(), filePath);
-            if (!f.exists()) {
-                f.mkdirs();
-            }
-            writer = new CSVWriter(new FileWriter(filePath, true));
-            writer.writeNext(data);
-            writer.flush();
-            writer.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        }
-
-    }
-
-    public void Delete_Files(int from, int till) {
-        for (int i = from; i < till; i++) {
-            for (File f : (new File(baseDir)).listFiles()) {
-                if (f.getName().contains(String.valueOf(i))) {
-                    f.delete();
-                    Log.d("File names: ", f.getName());
-                }
-            }
-        }
-    }
-
-    public boolean DouplicateCheck() {
-        String temp = NodeSequenceList.get(NodeSequenceList.size() - 1);
-        boolean ret = false;
-        for (int i = 0; i < NodeSequenceList.size() - 1; i++) {
-            if (NodeSequenceList.get(i).toString().equals(temp)) {
-                Toast.makeText(this.getContext(), "Same Pattern detected", Toast.LENGTH_SHORT).show();
-                ret = true;
-                break;
-            }
-        }
-        return ret;
-    }
-
-    public long GetCenterNodeX(int NodeNum) {
-        return (long) 0.001;
-    }
-
-    public long GetCenterNodeY(int NodeNum) {
-        return (long) 0.002;
-    }
 
 }
