@@ -30,9 +30,9 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
 
-    public static double accel_x, accel_y, accel_z;   // these are the acceleration in x,y and z axis
-    public static double gyro_x, gyro_y, gyro_z;
-    public static double laccel_x, laccel_y, laccel_z;
+    public static double accel_x, accel_y, accel_z;     // these are the acceleration in x,y and z axis
+    public static double gyro_x, gyro_y, gyro_z;        //gyroscope axis
+    public static double laccel_x, laccel_y, laccel_z;  //linear acceleration
     public static int screenheight, screenwidth;
     public static ArrayList<String> Longrun = new ArrayList<>();
     public static ArrayList<String> ClosedCurves = new ArrayList<>();
@@ -43,24 +43,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static ArrayList<String> ShortOrthogonalEdges = new ArrayList<>();
     public static ArrayList<String> CommonPatterns=new ArrayList<>();
     public static String username;
-    public static int handnum;
-    public static String fingernum;
-    private float[] gravity = new float[3];
+    public static int handnum;               //Number corresponding to users hand 1-2
+    public static String fingernum;          //Number corresponding to users finger 1-5
+    private float[] gravity = new float[3];  //auxiliary array to calculate linear acceleration
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGyroscope;
 
 
-    public EditText UserName, Info;
+    public EditText UserName;
     public static TextView Attempt;
-    private static final String TAG = "DemoActivity";
-    private PatternLockView mCurLockView;
+    private static final String TAG = "PatternLock";
     public static PatternLockView mCircleLockView;
-
-    private Switch hand;
-    private RadioGroup radioGroup;
-    private RadioButton radioButton;
+    private PatternLockView mCurLockView;
+    private Switch hand;                     //Hand toggle switch
+    private RadioGroup radioGroup;          //Finger button radio group
     private Button submit, statisticalAnalysis;
-
+    private RadioButton radioButton;
     public static void setAttempt(int attempts) {
         Attempt.setText(String.valueOf(attempts));
     }
@@ -70,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        //Statistical analysis lists
         Longrun.add("123");
         Longrun.add("321");
         Longrun.add("456");
@@ -263,9 +261,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         CommonPatterns.add("2589");
 
 
-
-
-
         UserName = (EditText) findViewById(R.id.UserName);
         Attempt = findViewById(R.id.Attempt);
         hand = findViewById(R.id.hand);
@@ -284,15 +279,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View view) {
                 String selection = null;
                 if (!hand.isChecked()) {
+                    //If the toggle switch is off then the users choose to use his left hand
                     handnum = 1;
                     Log.d("handnum", Integer.toString(handnum));
 
                 } else {
+                    //If the toggle switch is on then the users choose to use his righthand hand
                     handnum = 2;
                     Log.d("handnum", Integer.toString(handnum));
                 }
                 username = UserName.getText().toString();
                 if (radioGroup.getCheckedRadioButtonId() != -1) {
+                    //Radio button grooup for selecting
+                    //1-Thumb 2-Index 3-Middle finger 4-Ring finger 5-Pinky
                     int id = radioGroup.getCheckedRadioButtonId();
                     View radioButton = radioGroup.findViewById(id);
                     int radioId = radioGroup.indexOfChild(radioButton);
@@ -303,7 +302,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 int checkedRadioButton = radioGroup.getCheckedRadioButtonId();
                 radioButton = findViewById(checkedRadioButton);
 
-                Log.d("fingernum", " Finger= " + selection + " Username = : " + username + " HandNumber = : " + handnum);
             }
 
         });
@@ -316,7 +314,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         mCircleLockView = (PatternLockView) findViewById(R.id.lock_view_circle);
-        //mDotLockView = (PatternLockView) findViewById(R.id.lock_view_dot);
         mCurLockView = mCircleLockView;
 
         DisplayMetrics metrics = new DisplayMetrics();
@@ -350,9 +347,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
          \___ \|  __| | . ` |\___ \| |  | |  _  / \___ \
          ____) | |____| |\  |____) | |__| | | \ \ ____) |
          |_____/|______|_| \_|_____/ \____/|_|  \_|_____/
-
-         //THELEI TIMESTAMP
-         * **/
+         **/
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             accel_x = event.values[0];
             accel_y = event.values[1];
@@ -363,7 +358,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // alpha is calculated as t / (t + dT)
             // with t, the low-pass filter's time-constant
             // and dT, the event delivery rate
-
             final float alpha = 0.8f;
 
             gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
@@ -382,40 +376,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-    }
-
-    /**
-     * ______  ___  _    _    ______  ___ _____ _____ ___________ _____ _   _    __   ___   __
-     * | ___ \/ _ \| |  | |   | ___ \/ _ |_   _|_   _|  ___| ___ |_   _| \ | |   \ \ / \ \ / /
-     * | |_/ / /_\ | |  | |   | |_/ / /_\ \| |   | | | |__ | |_/ / | | |  \| |    \ V / \ V /
-     * |    /|  _  | |/\| |   |  __/|  _  || |   | | |  __||    /  | | | . ` |    /   \  \ /
-     * | |\ \| | | \  /\  /   | |   | | | || |   | | | |___| |\ \  | | | |\  |   / /^\ \ | |
-     * \_| \_\_| |_/\/  \/    \_|   \_| |_/\_/   \_/ \____/\_| \_| \_/ \_| \_/   \/   \/ \_/
-     */
-
-
-    public void writeCSV(String baseDir, String fileName, String filePath) {
-        //https://stackoverflow.com/questions/17645092/export-my-data-on-csv-file-from-app-android
-       /* String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-        String fileName = "AnalysisData.csv";
-        String filePath = baseDir + File.separator + fileName;*/
-        CSVWriter writer = null;
-        try {
-            writer = new CSVWriter(new FileWriter(filePath, true));
-            writer.writeNext(new String[]{"India", "New Delhi"});
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static long timestamp() {
-        if (Build.VERSION_CODES.JELLY_BEAN_MR1 <= Build.VERSION.SDK_INT) {
-            return SystemClock.elapsedRealtimeNanos();
-        } else {
-            return SystemClock.uptimeMillis();
-        }
     }
 
     public static SensorDataModelClass GetSensors() {
@@ -438,8 +398,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static String GetScreenResolution() {
         return Integer.toString(screenheight) + "x" + Integer.toString(screenwidth);
     }
-
-
+    
 }
-
-//https://www.codeproject.com/Questions/491823/Read-fWriteplusCSVplusinplusplusAndroid
