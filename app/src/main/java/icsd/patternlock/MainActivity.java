@@ -277,7 +277,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //TODO Opt code here!!
                 String selection = null;
+                if (radioGroup.getCheckedRadioButtonId() != -1 && UserName.getText()!=null)
+                {
+                    //Disable user submision options
+                    //enable patternlock view
                 if (!hand.isChecked()) {
                     //If the toggle switch is off then the users choose to use his left hand
                     handnum = 1;
@@ -289,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     Log.d("handnum", Integer.toString(handnum));
                 }
                 username = UserName.getText().toString();
-                if (radioGroup.getCheckedRadioButtonId() != -1) {
+
                     //Radio button grooup for selecting
                     //1-Thumb 2-Index 3-Middle finger 4-Ring finger 5-Pinky
                     int id = radioGroup.getCheckedRadioButtonId();
