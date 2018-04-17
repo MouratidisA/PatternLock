@@ -510,6 +510,7 @@ public class PatternLockView extends ViewGroup {
                         Log.d("FirstPatternNodeTouched", "nodeAt-->" + nodeAt.getNodeId());
                         NodeList.add(nodeAt.getNodeId() + 1); // adding the node to the NodeList
                         PatternNodesCounter++; // update PatternNodesCounter
+                        //TODO *OPT* PatternNodesCounter can be replaced by NodeList.size
 
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
@@ -548,7 +549,6 @@ public class PatternLockView extends ViewGroup {
                         int result = mCallBack.onFinish(new Password(mNodeList));
                         setFinishState(result);
                     }
-                    NodeView tempNode = currentNode;
                     currentNode = null;
                     invalidate();
                     postDelayed(mFinishAction, mFinishTimeout);
