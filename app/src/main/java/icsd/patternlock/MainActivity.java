@@ -273,11 +273,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 MainActivity.this.startActivity(myIntent);
             }
         });
+
         submit = findViewById(R.id.submit);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //TODO Opt code here!!
+                mCurLockView.setEnabled(true);
                 String selection = null;
                 if (radioGroup.getCheckedRadioButtonId() != -1 && UserName.getText()!=null)
                 {
@@ -303,6 +305,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     RadioButton btn = (RadioButton) radioGroup.getChildAt(radioId);
                     selection = (String) btn.getText();
                     fingernum = selection;
+                    UserName.setFocusable(false);
+                    for (int i = 0; i <radioGroup.getChildCount(); i++)
+                    {
+                        radioGroup.getChildAt(i).setEnabled(false);
+                    }
+                    hand.setEnabled(false);
+
                 }
                 int checkedRadioButton = radioGroup.getCheckedRadioButtonId();
                 radioButton = findViewById(checkedRadioButton);
@@ -320,6 +329,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         mCircleLockView = (PatternLockView) findViewById(R.id.lock_view_circle);
         mCurLockView = mCircleLockView;
+        mCircleLockView.setEnabled(false);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
