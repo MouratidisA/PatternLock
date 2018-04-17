@@ -1,25 +1,18 @@
 package icsd.patternlock;
 
-import icsd.patternlock.MainActivity.*;
-
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.provider.ContactsContract;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -31,17 +24,12 @@ import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Node;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -511,7 +499,7 @@ public class PatternLockView extends ViewGroup {
             case MotionEvent.ACTION_MOVE: // when users is in progress of the pattern
                 mPositionX = event.getX();
                 mPositionY = event.getY();
-                /**Start time of Pattern**/
+                //Start time of Pattern
                 // TimeStart = SystemClock.elapsedRealtimeNanos();
                 //TODO check the timestamp the comment is the old location
 
@@ -524,7 +512,6 @@ public class PatternLockView extends ViewGroup {
                         PatternNodesCounter++; // update PatternNodesCounter
 
                         currentNode = nodeAt;
-                        Log.d(TAG, "55555555555555555"+currentNode.getCenterX()+" "+ currentNode.getCenterY());
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
                         addNodeToList(currentNode);
                         invalidate();
@@ -891,7 +878,6 @@ public class PatternLockView extends ViewGroup {
             //Pattern Number of NodeA and NodeB
             pairMetadataModelClass.setPattern_number_A(PairNodeModelClassList.get(i).getPattern_number_Node());
             pairMetadataModelClass.setPattern_number_B(PairNodeModelClassList.get(i + 1).getPattern_number_Node());
-            //TODO get the central x/y for node
             //Central Point for Node A
             pairMetadataModelClass.setXcoord_of_central_Point_of_A(PairNodeModelClassList.get(i).getXcoord_of_central_Point_of_Node());
             pairMetadataModelClass.setYcoord_of_central_Point_of_A(PairNodeModelClassList.get(i).getYcoord_of_central_Point_of_Node());
@@ -1280,6 +1266,5 @@ public class PatternLockView extends ViewGroup {
         }
 
     }
-
 
 }
