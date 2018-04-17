@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static TextView Attempt;
     private static final String TAG = "DemoActivity";
     private PatternLockView mCurLockView;
-    private PatternLockView mCircleLockView;
+    public static PatternLockView mCircleLockView;
 
     private Switch hand;
     private RadioGroup radioGroup;

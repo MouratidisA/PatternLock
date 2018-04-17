@@ -33,6 +33,7 @@ import com.opencsv.CSVWriter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -513,6 +514,7 @@ public class PatternLockView extends ViewGroup {
                 /**Start time of Pattern**/
                 // TimeStart = SystemClock.elapsedRealtimeNanos();
                 //TODO check the timestamp the comment is the old location
+
                 NodeView nodeAt = getNodeAt(mPositionX, mPositionY);
 
                 if (currentNode == null) {
@@ -522,6 +524,7 @@ public class PatternLockView extends ViewGroup {
                         PatternNodesCounter++; // update PatternNodesCounter
 
                         currentNode = nodeAt;
+                        Log.d(TAG, "55555555555555555"+currentNode.getCenterX()+" "+ currentNode.getCenterY());
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
                         addNodeToList(currentNode);
                         invalidate();
@@ -558,7 +561,7 @@ public class PatternLockView extends ViewGroup {
                         int result = mCallBack.onFinish(new Password(mNodeList));
                         setFinishState(result);
                     }
-
+                    NodeView tempNode = currentNode;
                     currentNode = null;
                     invalidate();
                     postDelayed(mFinishAction, mFinishTimeout);
@@ -620,6 +623,7 @@ public class PatternLockView extends ViewGroup {
                         PairNodeModelClassList = new ArrayList<>();
                         RawPatternModelClass first_record_of_a_node = null, last_record_of_a_node = null;
                         // In every RawPattern record (item of the ArrayList)
+                        int k=0;
                         for (int i = 0; i < RawPatternList.size(); i++) {
                             first_record_of_a_node = RawPatternList.get(i); // The first record of a Node
                             //searching till the last record of the node
@@ -642,12 +646,13 @@ public class PatternLockView extends ViewGroup {
                                 }
                             }
                             /**Adding The first and the last record of the Node to a PairNodeModelClass and then to PairNodeModelClassList**/
+
                             PairNodeModelClassList.add(
                                     new PairNodeModelClass(
                                             first_record_of_a_node.getNumber_of_activated_point(),
-                                            //TODO add the real central x/y for the node
-                                            GetCenterNodeX(first_record_of_a_node.getNumber_of_activated_point()),
-                                            GetCenterNodeY(first_record_of_a_node.getNumber_of_activated_point()),
+                                            // node's center coordinates (based on PatternLock position) + PatternLocks position = node's position based on phone's screen
+                                            (long) (mNodeList.get(k).getCenterX()+ MainActivity.mCircleLockView.getX()),
+                                            (long) (mNodeList.get(k).getCenterY() + MainActivity.mCircleLockView.getY()),
                                             first_record_of_a_node.getX(),
                                             first_record_of_a_node.getY(),
                                             last_record_of_a_node.getX(),
@@ -656,8 +661,9 @@ public class PatternLockView extends ViewGroup {
                                             first_record_of_a_node.getTimestamp(),
                                             PressureSum, PressureCount));
 
-
+                            k++;
                         }
+                        Log.d(TAG, "onTouchEvent: "+mNodeList.size());
                         /** Checking fo duplicate patterns when user adds next pattern */
                         boolean dupCheck = DouplicateCheck();
                         if (Attempt == 10 || Attempt == 11 || Attempt == 12 || Attempt == 23 || Attempt == 24 || Attempt == 25) {
@@ -706,6 +712,7 @@ public class PatternLockView extends ViewGroup {
         }
         return true;
     }
+
 
     public void writeFilesToDeviceStorage() {
         //Setup the Header of the file
@@ -804,7 +811,6 @@ public class PatternLockView extends ViewGroup {
 
 
     }
-
 
     public long getPatternLength() {
         // getting a copy from RawPatternList
@@ -960,14 +966,6 @@ public class PatternLockView extends ViewGroup {
         return ret;
     }
 
-    public long GetCenterNodeX(int NodeNum) {
-        return (long) 0.001;
-    }
-
-    public long GetCenterNodeY(int NodeNum) {
-        return (long) 0.002;
-    }
-
     private void confirmDialog(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
 
@@ -977,7 +975,7 @@ public class PatternLockView extends ViewGroup {
     }
 
     public  void  PatternRank() {
-        //TODO  Non-Repeated segments 
+        //TODO  Non-Repeated segments
         rank = 0;
         //Left/Right Hand
         if (MainActivity.fingernum.equals("1") && MainActivity.handnum == 1) {
