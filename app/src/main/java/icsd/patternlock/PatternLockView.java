@@ -590,7 +590,7 @@ public class PatternLockView extends ViewGroup {
                                 );
                         PatternMetadataList.add(patternMetadataModelClass);
                         getStatistics(NodeSequence); // load info for statistics ( logn edges,short edges etc)
-                        /**Setting up Folder for every User**/
+                        /**Setting up Folder for User**/
                         userFolder = new File(android.os.Environment.getExternalStorageDirectory() + File.separator + username);
                         userFolder.mkdirs(); // creating users directory
                         baseDir = userFolder.getAbsolutePath();
@@ -962,6 +962,8 @@ public class PatternLockView extends ViewGroup {
 
     public  void  PatternRank() {
         //TODO  Non-Repeated segments
+        // TODO Long runs short edge
+        // TODO
         rank = 0;
         //Left/Right Hand
         if (MainActivity.fingernum.equals("1") && MainActivity.handnum == 1) {
@@ -1001,6 +1003,10 @@ public class PatternLockView extends ViewGroup {
         Toast.makeText(this.getContext(), "Your Rank is: " +Integer.toString(rank), Toast.LENGTH_SHORT).show();
 
     }
+
+
+
+    /** THIS SECTION BELOW CONTAINS FUNCTIONS AND CALSSES FROM PAATERN LOCK GITHUB PROJECT!!*/
 
     private void setupNodes(int size) {
         removeAllViews();
@@ -1131,12 +1137,10 @@ public class PatternLockView extends ViewGroup {
         return measureMode == MeasureSpec.EXACTLY;
     }
 
-
     public interface CallBack {
 
         int onFinish(Password password);
     }
-
 
     public interface OnNodeTouchListener {
         void onNodeTouched(int NodeId);
