@@ -278,7 +278,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO Opt code here!!
+
+                PatternLockView.tmp_Rank=Integer.MIN_VALUE;
                 mCurLockView.setEnabled(true);
                 String selection = null;
                 if (radioGroup.getCheckedRadioButtonId() != -1 && UserName.getText()!=null)

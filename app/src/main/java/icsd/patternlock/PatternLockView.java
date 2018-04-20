@@ -87,7 +87,7 @@ public class PatternLockView extends ViewGroup {
 
 
     /**
-     * OUR CODE HERE!!
+     * OUR CODE STARTS HERE!!
      **/
     public ArrayList<Point> PointList = new ArrayList<>();
     public ArrayList<Integer> NodeList = new ArrayList<>();
@@ -141,10 +141,12 @@ public class PatternLockView extends ViewGroup {
     // counters for the pattern statistics
     public static int ShortEdgesCounter = 0, LongrunCounter = 0, ClosedCurvesCounter = 0, LongCurvesCounter = 0, LongEdgesCounter = 0, LongOrthogonalEdgesCounter = 0, ShortOrthogonalEdgesCounter = 0;
     public static int Attempt = 0; // attempt of the user (attempt is refreshed after the users enters the pattern)
-    public  static int  rank;
+    public static int rank;
+    public static int tmp_Rank;
     public long TimeStart, TimeEnd, TimeToComplete; // time manage variables
     private int PatternNodesCounter = 0; // amount of nodes in users pattern (we need at least 4 nodes to proceed )
     public String nodesqn;
+
 
     /**
      * Setting up Folder for every User
@@ -170,6 +172,10 @@ public class PatternLockView extends ViewGroup {
      */
     ArrayList<PairNodeModelClass> PairNodeModelClassList;
     PatternMetadataModelClass patternMetadataModelClass;
+
+    /**
+     * THIS SECTION BELOW CONTAINS FUNCTIONS AND CLASSES FROM PASTERN LOCK GITHUB PROJECT!!
+     */
 
 
     public PatternLockView(Context context) {
@@ -478,6 +484,9 @@ public class PatternLockView extends ViewGroup {
         }
     }
 
+    /**
+     * OUR CODE CONTINUES FROM HERE!!
+     **/
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -499,9 +508,6 @@ public class PatternLockView extends ViewGroup {
             case MotionEvent.ACTION_MOVE: // when users is in progress of the pattern
                 mPositionX = event.getX();
                 mPositionY = event.getY();
-                //Start time of Pattern
-                // TimeStart = SystemClock.elapsedRealtimeNanos();
-                //TODO check the timestamp the comment is the old location
 
                 NodeView nodeAt = getNodeAt(mPositionX, mPositionY);
 
@@ -510,7 +516,6 @@ public class PatternLockView extends ViewGroup {
                         Log.d("FirstPatternNodeTouched", "nodeAt-->" + nodeAt.getNodeId());
                         NodeList.add(nodeAt.getNodeId() + 1); // adding the node to the NodeList
                         PatternNodesCounter++; // update PatternNodesCounter
-                        //TODO *OPT* PatternNodesCounter can be replaced by NodeList.size
 
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
@@ -529,7 +534,7 @@ public class PatternLockView extends ViewGroup {
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
                         addNodeToList(currentNode);
                     }
-                    /**Addind Raw Data  Here !!**/
+                    /**Adding Raw Data  Here !!**/
                     SensorPatternList.add(MainActivity.GetSensors());
                     RawPatternList.add(new RawPatternModelClass(NodeList.get(NodeList.size() - 1), SystemClock.elapsedRealtimeNanos(), (long) event.getRawX(), (long) event.getRawY(), event.getPressure()));
 
@@ -610,7 +615,7 @@ public class PatternLockView extends ViewGroup {
                         PairNodeModelClassList = new ArrayList<>();
                         RawPatternModelClass first_record_of_a_node = null, last_record_of_a_node = null;
                         // In every RawPattern record (item of the ArrayList)
-                        int k=0;
+                        int k = 0;
                         for (int i = 0; i < RawPatternList.size(); i++) {
                             first_record_of_a_node = RawPatternList.get(i); // The first record of a Node
                             //searching till the last record of the node
@@ -638,7 +643,7 @@ public class PatternLockView extends ViewGroup {
                                     new PairNodeModelClass(
                                             first_record_of_a_node.getNumber_of_activated_point(),
                                             // node's center coordinates (based on PatternLock position) + PatternLocks position = node's position based on phone's screen
-                                            (long) (mNodeList.get(k).getCenterX()+ MainActivity.mCircleLockView.getX()),
+                                            (long) (mNodeList.get(k).getCenterX() + MainActivity.mCircleLockView.getX()),
                                             (long) (mNodeList.get(k).getCenterY() + MainActivity.mCircleLockView.getY()),
                                             first_record_of_a_node.getX(),
                                             first_record_of_a_node.getY(),
@@ -650,7 +655,7 @@ public class PatternLockView extends ViewGroup {
 
                             k++;
                         }
-                        Log.d(TAG, "onTouchEvent: "+mNodeList.size());
+                        Log.d(TAG, "onTouchEvent: " + mNodeList.size());
                         /** Checking fo duplicate patterns when user adds next pattern */
                         boolean dupCheck = DouplicateCheck();
                         if (Attempt == 10 || Attempt == 11 || Attempt == 12 || Attempt == 23 || Attempt == 24 || Attempt == 25) {
@@ -960,10 +965,7 @@ public class PatternLockView extends ViewGroup {
                 .show();
     }
 
-    public  void  PatternRank() {
-        //TODO  Non-Repeated segments
-        // TODO Long runs short edge
-        // TODO
+    public void PatternRank() {
         rank = 0;
         //Left/Right Hand
         if (MainActivity.fingernum.equals("1") && MainActivity.handnum == 1) {
@@ -977,36 +979,47 @@ public class PatternLockView extends ViewGroup {
         }
 
         //Length
-        if(nodesqn.length()==4){
-            rank+=5;
+        if (nodesqn.length() == 4) {
+            rank += 5;
         }
-        if(nodesqn.length()==5){
-            rank+=10;
+        if (nodesqn.length() == 5) {
+            rank += 10;
         }
-        if(nodesqn.length()==6){
-            rank+=15;
+        if (nodesqn.length() == 6) {
+            rank += 15;
         }
-        if(nodesqn.length()==7){
-            rank+=20;
+        if (nodesqn.length() == 7) {
+            rank += 20;
         }
-        if(nodesqn.length()==8){
-            rank+=25;
+        if (nodesqn.length() == 8) {
+            rank += 25;
         }
-        if(nodesqn.length()==9){
-            rank+=35;
+        if (nodesqn.length() == 9) {
+            rank += 35;
         }
         //CommonPatterns
         if (MainActivity.CommonPatterns.contains(nodesqn)) ;
         {
             rank += -30;
         }
-        Toast.makeText(this.getContext(), "Your Rank is: " +Integer.toString(rank), Toast.LENGTH_SHORT).show();
+        /** Adding additional weighs for every Statistical Analysis pattern  */
+        rank += 5 * LongrunCounter + 5 * LongCurvesCounter + 5 * ClosedCurvesCounter + 10 * LongEdgesCounter + 10 * LongOrthogonalEdgesCounter + 15 * ShortEdgesCounter + 15 * ShortOrthogonalEdgesCounter;
+        /** Rank is complete */
+        if (tmp_Rank == Integer.MIN_VALUE) {
+            // if is the first attempt then temp should be zero for the subtraction with the rank
+            tmp_Rank = 0;
+        }
+        int Last_Rank = rank - tmp_Rank; // last rank = rank - tempRank
+        Toast.makeText(this.getContext(), "Your Rank is: " + Integer.toString(Last_Rank), Toast.LENGTH_SHORT).show();
+        // refresh the temp_Rank by adding the last rank
+        tmp_Rank += Last_Rank;
 
     }
 
 
-
-    /** THIS SECTION BELOW CONTAINS FUNCTIONS AND CALSSES FROM PAATERN LOCK GITHUB PROJECT!!*/
+    /**
+     * THIS SECTION BELOW CONTAINS FUNCTIONS AND CLASSES FROM PASTERN LOCK GITHUB PROJECT!!
+     */
 
     private void setupNodes(int size) {
         removeAllViews();
@@ -1203,7 +1216,6 @@ public class PatternLockView extends ViewGroup {
             }
             mState = state;
         }
-
 
 
         public int getCenterX() {
