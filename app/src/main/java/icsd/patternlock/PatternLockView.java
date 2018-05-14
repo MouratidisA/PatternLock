@@ -661,9 +661,9 @@ public class PatternLockView extends ViewGroup {
                         if (Attempt == 10 || Attempt == 11 || Attempt == 12 || Attempt == 23 || Attempt == 24 || Attempt == 25) {
                             confirmDialog("Please enter valid Pattern");
                         } else if (Attempt == 13) {
-                            confirmDialog("Please re-enter one of the last 10 patterns");
+                            confirmDialog("Please enter another 10 patterns");
                         } else if (Attempt == 26) {
-                            confirmDialog("FINISHED!!!!!!!!! _|_");
+                            confirmDialog("Thanks for your patience");
                         }
                         //if the is no duplicate between patterns
                         if (!dupCheck) {
